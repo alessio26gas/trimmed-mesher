@@ -1,0 +1,5 @@
+cmake_minimum_required(VERSION 3.10)
+project(CFD VERSION 1.0 LANGUAGES C)
+set(CMAKE_C_FLAGS_RELEASE "-O3")
+add_executable(mesher src/mesher.c)
+target_link_libraries(mesher m)
