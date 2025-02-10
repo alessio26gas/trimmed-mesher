@@ -49,7 +49,7 @@ int is_enclosed(Point p, Point *body, int n_points) {
     return inside;
 }
 
-bool is_near_body(Point *p, Point *body, int n_points, double cell_size) {
+bool is_near_body(Point *p, Point *body, int n_points, double cell_size, double frac) {
     double min_distance = cell_size;
     double ABx, ABy, APx, APy, ABAB, ABAP, t, Xq, Yq, dx, dy, distance;
     double xp = (*p).x, yp = (*p).y;
@@ -75,7 +75,7 @@ bool is_near_body(Point *p, Point *body, int n_points, double cell_size) {
             yp = Yq;
         }
     }
-    if (min_distance < cell_size / 5) {
+    if (min_distance < cell_size / frac) {
         (*p).x = xp;
         (*p).y = yp;
         return true;

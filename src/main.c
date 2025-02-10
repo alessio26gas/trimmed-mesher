@@ -59,7 +59,9 @@ int main(int argc, char *argv[]) {
     }
 
     for (int i = 0; i < n_nodes; i++) {
-        if (is_near_body(&(nodes[i].position), body, n_points, cell_size)) {
+        double frac = 2.01;
+        if (nodes[i].type == 1) frac = 5.0;
+        if (is_near_body(&(nodes[i].position), body, n_points, cell_size, frac)) {
             nodes[i].type = 2;
         }
     }
