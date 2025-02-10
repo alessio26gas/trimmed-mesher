@@ -5,6 +5,7 @@
 #include "node.h"
 #include "element.h"
 #include "export.h"
+#include "nearwall.h"
 
 #define EPSILON 1e-8
 
@@ -42,6 +43,10 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    Point *offset;
+    double nwl_distance = 0.05;
+    compute_offset(&offset, body, n_points, nwl_distance);
+
     int n_nodes = (rows + 1) * (cols + 1);
     Node *nodes = malloc(2 * n_nodes * sizeof(Node)); // 2?
     if (!nodes) {
@@ -53,7 +58,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i <= rows; i++) {
         for (int j = 0; j <= cols; j++) {
             Point p = {X0 + j * cell_size, Y0 + i * cell_size};
-            int type = is_enclosed(p, body, n_points);
+            int type = is_enclosed(p, offset, n_points);
             nodes[node_id - 1] = (Node){node_id++, type, p};
         }
     }
@@ -61,7 +66,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < n_nodes; i++) {
         double frac = 2.01;
         if (nodes[i].type == 1) continue;
-        if (is_near_body(&(nodes[i].position), body, n_points, cell_size, frac)) {
+        if (is_near_body(&(nodes[i].position), offset, n_points, cell_size, frac)) {
             nodes[i].type = 2;
         }
     }
@@ -99,6 +104,8 @@ int main(int argc, char *argv[]) {
             int ex = (nodes[n1-1].type==0) + (nodes[n2-1].type==0) + (nodes[n3-1].type==0) + (nodes[n4-1].type==0);
             int in = (nodes[n1-1].type==1) + (nodes[n2-1].type==1) + (nodes[n3-1].type==1) + (nodes[n4-1].type==1);
 
+            if (ex == 0) continue;
+
             if (in == 0) {
                 elements[n_elements++] = (Element){element_id++, 3, 4, {n1, n2, n3, n4}};
                 continue;
@@ -107,15 +114,15 @@ int main(int argc, char *argv[]) {
             switch (ex) {
                 case 3:
                     int n5;
-                    int flag = penta_vertices(&n1, &n2, &n3, &n4, &n5, body, n_points, &nodes, &n_nodes);
+                    int flag = penta_vertices(&n1, &n2, &n3, &n4, &n5, offset, n_points, &nodes, &n_nodes);
                     elements[n_elements++] = (Element){element_id++, 4, 5, {n1, n2, n3, n4, n5}, flag};
                     break;
                 case 2:
-                    quad_vertices(&n1, &n2, &n3, &n4, body, n_points, &nodes, &n_nodes);
+                    quad_vertices(&n1, &n2, &n3, &n4, offset, n_points, &nodes, &n_nodes);
                     elements[n_elements++] = (Element){element_id++, 3, 4, {n1, n2, n3, n4}};
                     break;
                 case 1:
-                    tria_vertices(&n1, &n2, &n3, &n4, body, n_points, &nodes, &n_nodes);
+                    tria_vertices(&n1, &n2, &n3, &n4, offset, n_points, &nodes, &n_nodes);
                     elements[n_elements++] = (Element){element_id++, 2, 3, {n1, n2, n3}};
                     break;
             }
@@ -123,6 +130,8 @@ int main(int argc, char *argv[]) {
     }
 
     split_pentagons(&elements, &n_elements);
+
+    // TODO: EXTRUDE NEAR WALL LAYER
 
     Element *boundaries = malloc(4 * (rows + cols) * sizeof(Element)); // 4?
     if (!boundaries) {
@@ -140,6 +149,7 @@ int main(int argc, char *argv[]) {
     free(elements);
     free(boundaries);
     free(body);
+    free(offset);
 
     printf("Mesh completed. Nodes: %d, Cells: %d\n", n_nodes, n_elements);
     return 0;
