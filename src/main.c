@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
 
         if (j1 == 0 || j2 == 0 || j3 == 0 || j4 == 0) {
             double frac = 4.0;
-            if (is_near_body(&(nodes[i].position), body, n_points, cell_size, frac)) {
+            if (is_near_body(&(nodes[i].position), offset, n_points, cell_size, frac)) {
                 nodes[i].type = 2;
             }
         }
