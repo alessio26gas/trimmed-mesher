@@ -308,17 +308,10 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
-    double X0, Y0;
-    if (argc == 7) {
-        X0 = atof(argv[5]);
-        Y0 = atof(argv[6]);
-    } else if (argc == 6) {
-        X0 = atof(argv[5]);
-        Y0 = - cell_size * rows / 2;
-    } else {
-        X0 = - cell_size * cols / 2;
-        Y0 = - cell_size * rows / 2;
-    }
+    double X0 = - cell_size * cols / 2;
+    double Y0 = - cell_size * rows / 2;
+    if (argc >= 6) X0 += atof(argv[5]);
+    if (argc == 7) Y0 += atof(argv[6]);
 
     Point *body;
     int n_points;
