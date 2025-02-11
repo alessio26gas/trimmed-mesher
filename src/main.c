@@ -38,14 +38,18 @@ int main(int argc, char *argv[]) {
     if (argc == 7) Y0 += atof(argv[6]);
 
     Point *body;
-    int n_points;
-    if (load_body(argv[1], &body, &n_points) != 0) {
+    int n_body;
+    if (load_body(argv[1], &body, &n_body) != 0) {
         return -1;
     }
 
     Point *offset;
-    double nwl_distance = 0.1;
-    compute_offset(&offset, body, n_points, nwl_distance);
+    int n_offset;
+    double nwl_distance = 0.2;
+    if (!compute_offset(&offset, &n_offset, body, n_body, nwl_distance)) {
+        printf("Invalid geometry.\n");
+        return -1;
+    }
 
     // DEFINE NEAR WALL LAYER DISTRIBUTION
     // -> update nodes allocation
@@ -61,7 +65,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i <= rows; i++) {
         for (int j = 0; j <= cols; j++) {
             Point p = {X0 + j * cell_size, Y0 + i * cell_size};
-            int type = get_point_type(p, offset, n_points);
+            int type = get_point_type(p, offset, n_offset);
             nodes[node_id - 1] = (Node){node_id++, type, p};
         }
     }
@@ -69,7 +73,7 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i < n_nodes; i++) {
         double frac = 2.01;
         if (nodes[i].type != 0) continue;
-        if (is_near_body(&(nodes[i].position), offset, n_points, cell_size, frac)) {
+        if (is_near_body(&(nodes[i].position), offset, n_offset, cell_size, frac)) {
             nodes[i].type = 2;
         }
     }
@@ -84,7 +88,7 @@ int main(int argc, char *argv[]) {
 
         if (j1 == 0 || j2 == 0 || j3 == 0 || j4 == 0) {
             double frac = 4.0;
-            if (is_near_body(&(nodes[i].position), offset, n_points, cell_size, frac)) {
+            if (is_near_body(&(nodes[i].position), offset, n_offset, cell_size, frac)) {
                 nodes[i].type = 2;
             }
         }
@@ -119,15 +123,15 @@ int main(int argc, char *argv[]) {
                 case 3:
                     int n5;
                     pentagons = true;
-                    int flag = penta_vertices(&n1, &n2, &n3, &n4, &n5, offset, n_points, &nodes, &n_nodes);
+                    int flag = penta_vertices(&n1, &n2, &n3, &n4, &n5, offset, n_offset, &nodes, &n_nodes);
                     elements[n_elements++] = (Element){element_id++, 4, 5, {n1, n2, n3, n4, n5}, flag};
                     break;
                 case 2:
-                    quad_vertices(&n1, &n2, &n3, &n4, offset, n_points, &nodes, &n_nodes);
+                    quad_vertices(&n1, &n2, &n3, &n4, offset, n_offset, &nodes, &n_nodes);
                     elements[n_elements++] = (Element){element_id++, 3, 4, {n1, n2, n3, n4}};
                     break;
                 case 1:
-                    tria_vertices(&n1, &n2, &n3, &n4, offset, n_points, &nodes, &n_nodes);
+                    tria_vertices(&n1, &n2, &n3, &n4, offset, n_offset, &nodes, &n_nodes);
                     elements[n_elements++] = (Element){element_id++, 2, 3, {n1, n2, n3}};
                     break;
             }
@@ -142,7 +146,7 @@ int main(int argc, char *argv[]) {
     extrude_near_wall_cells(
         &elements, &n_elements,
         &nodes, &n_nodes,
-        body, n_points,
+        body, n_body,
         offset_nodes, n_offset_nodes,
         nwl_distance
     );
