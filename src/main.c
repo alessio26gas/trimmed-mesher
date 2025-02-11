@@ -44,8 +44,11 @@ int main(int argc, char *argv[]) {
     }
 
     Point *offset;
-    double nwl_distance = 0.05;
+    double nwl_distance = 0.1;
     compute_offset(&offset, body, n_points, nwl_distance);
+
+    // DEFINE NEAR WALL LAYER DISTRIBUTION
+    // -> update nodes allocation
 
     int n_nodes = (rows + 1) * (cols + 1);
     Node *nodes = malloc(2 * n_nodes * sizeof(Node)); // 2?
@@ -133,7 +136,16 @@ int main(int argc, char *argv[]) {
 
     if (pentagons) split_pentagons(&elements, &n_elements);
 
-    // TODO: EXTRUDE NEAR WALL LAYER
+    int *offset_nodes;
+    int n_offset_nodes = 0;
+    get_offset_nodes(&offset_nodes, &n_offset_nodes, nodes, n_nodes, cell_size);
+    extrude_near_wall_cells(
+        &elements, &n_elements,
+        &nodes, &n_nodes,
+        body, n_points,
+        offset_nodes, n_offset_nodes,
+        nwl_distance
+    );
 
     Element *boundaries = malloc(4 * (rows + cols) * sizeof(Element)); // 4?
     if (!boundaries) {
@@ -152,6 +164,7 @@ int main(int argc, char *argv[]) {
     free(boundaries);
     free(body);
     free(offset);
+    free(offset_nodes);
 
     printf("Mesh completed. Nodes: %d, Cells: %d\n", n_nodes, n_elements);
     return 0;
