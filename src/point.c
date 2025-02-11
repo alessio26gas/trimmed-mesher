@@ -37,10 +37,13 @@ int load_body(const char *filename, Point **body, int *n_points) {
     return 0;
 }
 
-int is_enclosed(Point p, Point *body, int n_points) {
+int get_point_type(Point p, Point *body, int n_points) {
     int inside = 0;
     for (int i = 0; i < n_points; i++) {
         int j = (i + 1) % n_points;
+
+        if (points_are_equal(p, body[i])) return 2;
+
         if (((body[i].y > p.y) != (body[j].y > p.y)) &&
             (p.x < (body[j].x - body[i].x) * (p.y - body[i].y) / (body[j].y - body[i].y) + body[i].x)) {
             inside = !inside;

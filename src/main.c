@@ -58,14 +58,14 @@ int main(int argc, char *argv[]) {
     for (int i = 0; i <= rows; i++) {
         for (int j = 0; j <= cols; j++) {
             Point p = {X0 + j * cell_size, Y0 + i * cell_size};
-            int type = is_enclosed(p, offset, n_points);
+            int type = get_point_type(p, offset, n_points);
             nodes[node_id - 1] = (Node){node_id++, type, p};
         }
     }
 
     for (int i = 0; i < n_nodes; i++) {
         double frac = 2.01;
-        if (nodes[i].type == 1) continue;
+        if (nodes[i].type != 0) continue;
         if (is_near_body(&(nodes[i].position), offset, n_points, cell_size, frac)) {
             nodes[i].type = 2;
         }
