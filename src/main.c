@@ -93,6 +93,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    bool pentagons = false;
     int element_id = 1, n_elements = 0;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
@@ -114,6 +115,7 @@ int main(int argc, char *argv[]) {
             switch (ex) {
                 case 3:
                     int n5;
+                    pentagons = true;
                     int flag = penta_vertices(&n1, &n2, &n3, &n4, &n5, offset, n_points, &nodes, &n_nodes);
                     elements[n_elements++] = (Element){element_id++, 4, 5, {n1, n2, n3, n4, n5}, flag};
                     break;
@@ -129,7 +131,7 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    split_pentagons(&elements, &n_elements);
+    if (pentagons) split_pentagons(&elements, &n_elements);
 
     // TODO: EXTRUDE NEAR WALL LAYER
 
