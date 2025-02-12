@@ -11,7 +11,7 @@ void write_mesh_file(const char *filename, Node *nodes, int n_nodes, Element *el
 
     fprintf(file, "$MeshFormat\n2.2 0 8\n$EndMeshFormat\n");
 
-    // TODO: PHYSICALNAMES
+    // TODO: Physical Entities
 
     fprintf(file, "$Nodes\n");
     fprintf(file, "%d\n", n_nodes);
@@ -31,7 +31,7 @@ void write_mesh_file(const char *filename, Node *nodes, int n_nodes, Element *el
         fprintf(file, "\n");
     }
 
-    // TODO: BOUNDARY ELEMENTS
+    // TODO: Write Boundary Elements
 
     fprintf(file, "$EndElements\n");
 

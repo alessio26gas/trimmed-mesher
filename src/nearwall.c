@@ -7,6 +7,19 @@
 #define PI 3.14159265358979323846
 #define EPSILON 1e-8
 
+double get_SF(NearWallLayer nwl) {
+    if (nwl.last > nwl.first) {
+        if (nwl.n < 3) return 1.0;
+        if (nwl.n == 3) return (nwl.distance-nwl.last-nwl.first)/nwl.first;
+        if (nwl.n == 4) return nwl.last/(nwl.distance-nwl.first);
+        // TODO: SF(n, L)
+        return 1.0;
+    }
+    if (nwl.n < 3) return 1.0;
+    // TODO: SF(n)
+    return 1.0;
+}
+
 bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, double nwl_distance) {
 
     double A = 0.0;
@@ -46,8 +59,7 @@ bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, doub
             body[i].y = 0.5 * (body[h].y + body[j].y);
         }
         if (angle < 0.75 * PI) k += 2;
-        // if (angle < PI / 2.0) k += 2;
-        // if (angle < PI / 3.0) k += 4;
+        // TODO: Improve offset quality
     }
 
     *n_offset = k;
@@ -122,7 +134,7 @@ double get_distance(Node a, Node b) {
     return sqrt(dx*dx + dy*dy);
 }
 
-int find_nearest(Node *nodes, int *ids, int n, int current, int *flag, double cell_size) {
+int nearest_node(Node *nodes, int *ids, int n, int current, int *flag, double cell_size) {
     int nearest = -1;
     double min_distance = 2 * cell_size;
 
@@ -133,6 +145,35 @@ int find_nearest(Node *nodes, int *ids, int n, int current, int *flag, double ce
                 min_distance = distance;
                 nearest = i;
             }
+        }
+    }
+    return nearest;
+}
+
+Point nearest_point(Point p, Point *body, int n_points, double nwl_distance) {
+    Point nearest;
+    double min_distance = 10 * nwl_distance;
+    double ABx, ABy, APx, APy, t, Xq, Yq, dx, dy, distance;
+    for (int i = 0; i < n_points; i++) {
+        int j = (i + 1) % n_points;
+
+        ABx = body[j].x - body[i].x;
+        ABy = body[j].y - body[i].y;
+        APx = p.x - body[i].x;
+        APy = p.y - body[i].y;
+        t = (APx * ABx + APy * ABy)/(ABx * ABx + ABy * ABy);
+        if (t < 0) t = 0;
+        if (t > 1) t = 1;
+        Xq = body[i].x + t * ABx;
+        Yq = body[i].y + t * ABy;
+        dx = Xq - p.x;
+        dy = Yq - p.y;
+        distance = sqrt(dx * dx + dy * dy);
+
+        if (distance < min_distance) {
+            min_distance = distance;
+            nearest.x = Xq;
+            nearest.y = Yq;
         }
     }
     return nearest;
@@ -169,7 +210,7 @@ void get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int 
     (*offset_nodes)[0] = ids[current];
 
     for (int i = 1; i < *n_offset_nodes; i++) {
-        int nearest = find_nearest(type2_nodes, ids, *n_offset_nodes, current, flag, cell_size);
+        int nearest = nearest_node(type2_nodes, ids, *n_offset_nodes, current, flag, cell_size);
         if (nearest == -1) break;
 
         flag[nearest] = 1;
@@ -183,7 +224,7 @@ void extrude_near_wall_cells(
     Node **nodes, int *n_nodes,
     Point *body, int n_body,
     int *offset_nodes, int n_offset_nodes,
-    double nwl_distance
+    NearWallLayer nwl
 ) {
     Point pA[n_offset_nodes];
     for (int i = 0; i < n_offset_nodes; i++) {
@@ -195,56 +236,51 @@ void extrude_near_wall_cells(
         int j = (i + 1) % n_offset_nodes;
         A += (pA[i].x * pA[j].y) - (pA[j].x * pA[i].y);
     }
-    int v = 2 * (A > 0) - 1;
+    bool clockwise = (A < 0);
 
     Point pB[n_offset_nodes];
     for (int i = 0; i < n_offset_nodes; i++) {
-        int h = (n_offset_nodes + i - 1) % n_offset_nodes;
-        int j = (i + 1) % n_offset_nodes;
-
-        // double hj = sqrt((pA[j].x-pA[h].x)*(pA[j].x-pA[h].x) + (pA[j].y-pA[h].y)*(pA[j].y-pA[h].y));
-        // double nx = - v * (pA[j].y - pA[h].y)/hj;
-        // double ny = + v * (pA[j].x - pA[h].x)/hj;
-
-        // pB[i].x = pA[i].x + nx * nwl_distance;
-        // pB[i].y = pA[i].y + ny * nwl_distance;
-
-        double tx_h = (pA[i].x - pA[h].x);
-        double ty_h = (pA[i].y - pA[h].y);
-        double lh = sqrt(tx_h * tx_h + ty_h * ty_h);
-        tx_h /= lh;
-        ty_h /= lh;
-
-        double tx_j = (pA[j].x - pA[i].x);
-        double ty_j = (pA[j].y - pA[i].y);
-        double lj = sqrt(tx_j * tx_j + ty_j * ty_j);
-        tx_j /= lj;
-        ty_j /= lj;
-
-        double bx = tx_h + tx_j;
-        double by = ty_h + ty_j;
-        double lb = sqrt(bx * bx + by * by);
-        bx /= lb;
-        by /= lb;
-
-        double nx = -by * v;
-        double ny = bx * v;
-
-        pB[i].x = pA[i].x + nx * nwl_distance;
-        pB[i].y = pA[i].y + ny * nwl_distance;
+        pB[i] = nearest_point(pA[i], body, n_body, nwl.distance);
     }
 
-    Point pI[n_offset_nodes];
-    for (int k = 0; k < n_offset_nodes; k++) {
-        for (int i = 0; i < n_body; i++) {
-            int j = (i + 1) % n_body;
-            if (get_intersection(pA[k], pB[k], body[i], body[j], &(pI[k]))) {
-                break;
-            }
+    // TODO: Optimize surface points distribution
+
+    if (nwl.n == 1) {
+        int kk = *n_nodes;
+
+        for (int i = 0; i < n_offset_nodes; i++) {
+            (*nodes)[*n_nodes].position = pB[i];
+            (*nodes)[*n_nodes].type = 3;
+            (*nodes)[*n_nodes].id = *n_nodes + 1;
+            (*n_nodes)++;
         }
+
+        for (int i = 0; i < n_offset_nodes; i++) {
+            int n1, n2, n3, n4;
+            if (clockwise) {
+                n1 = (*nodes)[kk + i].id;
+                n2 = (*nodes)[kk + (i + 1) % n_offset_nodes].id;
+                n3 = offset_nodes[(i + 1) % n_offset_nodes];
+                n4 = offset_nodes[i];
+            } else {
+                n4 = (*nodes)[kk + i].id;
+                n3 = (*nodes)[kk + (i + 1) % n_offset_nodes].id;
+                n2 = offset_nodes[(i + 1) % n_offset_nodes];
+                n1 = offset_nodes[i];
+            }
+            (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+            (*n_elements)++;
+        }
+        return;
     }
 
-    // CREATE NODES ON INTERSECTION POINTS
-    // CREATE NODES BASED ON DISTRIBUTION
-    // CREATE ELEMENTS
+    // TODO: Create Nodes and Elements with geometric progression distribution
+    double x[nwl.n - 1];
+    for (int i = 0; i < nwl.n - 1; i++) {
+        double K = 0;
+        for (int k = 0; k <= i; k++) {
+            K += pow(nwl.SF, k);
+        }
+        x[i] = nwl.first * K;
+    }
 }

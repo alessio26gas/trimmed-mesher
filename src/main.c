@@ -43,16 +43,19 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    NearWallLayer nwl;
+    nwl.first = 0.001;
+    nwl.last = 0.8 * cell_size;
+    nwl.distance = 1.8 * cell_size;
+    nwl.n = 1;
+    nwl.SF = get_SF(nwl);
+
     Point *offset;
     int n_offset;
-    double nwl_distance = 0.2;
-    if (!compute_offset(&offset, &n_offset, body, n_body, nwl_distance)) {
+    if (!compute_offset(&offset, &n_offset, body, n_body, nwl.distance)) {
         printf("Invalid geometry.\n");
         return -1;
     }
-
-    // DEFINE NEAR WALL LAYER DISTRIBUTION
-    // -> update nodes allocation
 
     int n_nodes = (rows + 1) * (cols + 1);
     Node *nodes = malloc(2 * n_nodes * sizeof(Node)); // 2?
@@ -148,7 +151,7 @@ int main(int argc, char *argv[]) {
         &nodes, &n_nodes,
         body, n_body,
         offset_nodes, n_offset_nodes,
-        nwl_distance
+        nwl
     );
 
     Element *boundaries = malloc(4 * (rows + cols) * sizeof(Element)); // 4?
@@ -159,7 +162,7 @@ int main(int argc, char *argv[]) {
 
     int n_boundaries = 0;
 
-    // TODO: DEFINE BOUNDARY ELEMENTS
+    // TODO: Define Boundary Elements
 
     write_mesh_file("mesh.msh", nodes, n_nodes, elements, n_elements, boundaries, n_boundaries);
 
