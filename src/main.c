@@ -57,10 +57,10 @@ int main(int argc, char *argv[]) {
         nwl.SF = 0;
 
         if (nwl.last > 0) {
-            if (nwl.n > 0) {
+            if (nwl.n > 3) {
                 nwl.SF = get_SF(nwl);
                 nwl.distance = get_nwl_distance(nwl);
-            } else {
+            } else if (!nwl.n > 0) {
                 nwl.n = get_nwl_n(nwl);
                 nwl.distance = get_nwl_distance(nwl);
             }

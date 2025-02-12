@@ -11,7 +11,7 @@ typedef struct {
     int n;
 } NearWallLayer;
 
-double get_nwl_n(NearWallLayer nwl);
+int get_nwl_n(NearWallLayer nwl);
 double get_nwl_distance(NearWallLayer nwl);
 double get_SF(NearWallLayer nwl);
 bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, double nwl_distance);
