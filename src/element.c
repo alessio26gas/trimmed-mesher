@@ -9,15 +9,11 @@ void tria_vertices(int *n1, int *n2, int *n3, int *n4, Point *body, int n_points
         find_and_update(n2, n1, body, n_points, nodes, n_nodes);
         if ((*nodes)[*n3 - 1].type != 2)
         find_and_update(n3, n1, body, n_points, nodes, n_nodes);
-        (*nodes)[*n2 - 1].type = 2;
-        (*nodes)[*n3 - 1].type = 2;
     } else if ((*nodes)[*n2 - 1].type == 0) {
         if ((*nodes)[*n3 - 1].type != 2)
         find_and_update(n3, n2, body, n_points, nodes, n_nodes);
         if ((*nodes)[*n1 - 1].type != 2)
         find_and_update(n1, n2, body, n_points, nodes, n_nodes);
-        (*nodes)[*n3 - 1].type = 2;
-        (*nodes)[*n1 - 1].type = 2;
     } else if ((*nodes)[*n3 - 1].type == 0) {
         *n1 = *n2;
         *n2 = *n3;
@@ -26,8 +22,6 @@ void tria_vertices(int *n1, int *n2, int *n3, int *n4, Point *body, int n_points
         find_and_update(n1, n2, body, n_points, nodes, n_nodes);
         if ((*nodes)[*n3 - 1].type != 2)
         find_and_update(n3, n2, body, n_points, nodes, n_nodes);
-        (*nodes)[*n1 - 1].type = 2;
-        (*nodes)[*n3 - 1].type = 2;
     } else if ((*nodes)[*n4 - 1].type == 0) {
         *n2 = *n3;
         *n3 = *n4;
@@ -35,8 +29,6 @@ void tria_vertices(int *n1, int *n2, int *n3, int *n4, Point *body, int n_points
         find_and_update(n1, n3, body, n_points, nodes, n_nodes);
         if ((*nodes)[*n2 - 1].type != 2)
         find_and_update(n2, n3, body, n_points, nodes, n_nodes);
-        (*nodes)[*n1 - 1].type = 2;
-        (*nodes)[*n2 - 1].type = 2;
     }
 }
 
@@ -46,29 +38,21 @@ void quad_vertices(int *n1, int *n2, int *n3, int *n4, Point *body, int n_points
         find_and_update(n1, n4, body, n_points, nodes, n_nodes);
         if ((*nodes)[*n2 - 1].type != 2)
         find_and_update(n2, n3, body, n_points, nodes, n_nodes);
-        (*nodes)[*n1 - 1].type = 2;
-        (*nodes)[*n2 - 1].type = 2;
     } else if ((*nodes)[*n2 - 1].type != 0 && (*nodes)[*n3 - 1].type != 0) {
         if ((*nodes)[*n2 - 1].type != 2)
         find_and_update(n2, n1, body, n_points, nodes, n_nodes);
         if ((*nodes)[*n3 - 1].type != 2)
         find_and_update(n3, n4, body, n_points, nodes, n_nodes);
-        (*nodes)[*n2 - 1].type = 2;
-        (*nodes)[*n3 - 1].type = 2;
     } else if ((*nodes)[*n3 - 1].type != 0 && (*nodes)[*n4 - 1].type != 0) {
         if ((*nodes)[*n3 - 1].type != 2)
         find_and_update(n3, n2, body, n_points, nodes, n_nodes);
         if ((*nodes)[*n4 - 1].type != 2)
         find_and_update(n4, n1, body, n_points, nodes, n_nodes);
-        (*nodes)[*n3 - 1].type = 2;
-        (*nodes)[*n4 - 1].type = 2;
     } else if ((*nodes)[*n4 - 1].type != 0 && (*nodes)[*n1 - 1].type != 0) {
         if ((*nodes)[*n4 - 1].type != 2)
         find_and_update(n4, n3, body, n_points, nodes, n_nodes);
         if ((*nodes)[*n1 - 1].type != 2)
         find_and_update(n1, n2, body, n_points, nodes, n_nodes);
-        (*nodes)[*n4 - 1].type = 2;
-        (*nodes)[*n1 - 1].type = 2;
     }
 }
 
@@ -79,30 +63,22 @@ int penta_vertices(int *n1, int *n2, int *n3, int *n4, int *n5, Point *body, int
         *n3 = *n2;
         find_and_update(n2, n1, body, n_points, nodes, n_nodes);
         find_and_update(n1, n5, body, n_points, nodes, n_nodes);
-        (*nodes)[*n2 - 1].type = 2;
-        (*nodes)[*n1 - 1].type = 2;
         return 1;
     } else if ((*nodes)[*n2 - 1].type == 1) {
         *n5 = *n4;
         *n4 = *n3;
         find_and_update(n3, n2, body, n_points, nodes, n_nodes);
         find_and_update(n2, n1, body, n_points, nodes, n_nodes);
-        (*nodes)[*n3 - 1].type = 2;
-        (*nodes)[*n2 - 1].type = 2;
         return 2;
     } else if ((*nodes)[*n3 - 1].type == 1) {
         *n5 = *n4;
         find_and_update(n4, n3, body, n_points, nodes, n_nodes);
         find_and_update(n3, n2, body, n_points, nodes, n_nodes);
-        (*nodes)[*n4 - 1].type = 2;
-        (*nodes)[*n3 - 1].type = 2;
         return 3;
     } else if ((*nodes)[*n4 - 1].type == 1) {
         *n5 = *n1;
         find_and_update(n5, n4, body, n_points, nodes, n_nodes);
         find_and_update(n4, n3, body, n_points, nodes, n_nodes);
-        (*nodes)[*n5 - 1].type = 2;
-        (*nodes)[*n4 - 1].type = 2;
         return 4;
     }
 }
@@ -114,7 +90,7 @@ void split_pentagons(Element **elements, int *num_elements) {
         if ((*elements)[i].type == 4) new_count += 2;
     }
 
-    Element *new_elements = (Element *)malloc(new_count * sizeof(Element));
+    Element *new_elements = (Element *)malloc(2 * new_count * sizeof(Element));
     int new_id = 1, new_index = 0;
 
     for (int i = 0; i < *num_elements; i++) {

@@ -7,7 +7,7 @@ int find_or_add_node(Point p, Node *nodes, int *n_nodes) {
             return nodes[i].id;
         }
     }
-    nodes[*n_nodes] = (Node){*n_nodes + 1, 0, p};
+    nodes[*n_nodes] = (Node){*n_nodes + 1, 2, p};
     return ++(*n_nodes);
 }
 
