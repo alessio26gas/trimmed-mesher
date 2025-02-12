@@ -74,9 +74,8 @@ int main(int argc, char *argv[]) {
     }
 
     for (int i = 0; i < n_nodes; i++) {
-        double frac = 2.01;
         if (nodes[i].type != 0) continue;
-        if (is_near_body(&(nodes[i].position), offset, n_offset, cell_size, frac)) {
+        if (is_near_body(&(nodes[i].position), offset, n_offset, cell_size)) {
             nodes[i].type = 2;
         }
     }
@@ -90,8 +89,7 @@ int main(int argc, char *argv[]) {
         int j4 = nodes[i-1].type + nodes[i+cols+1].type + nodes[i+cols].type;
 
         if (j1 == 0 || j2 == 0 || j3 == 0 || j4 == 0) {
-            double frac = 4.0;
-            if (is_near_body(&(nodes[i].position), offset, n_offset, cell_size, frac)) {
+            if (is_near_body(&(nodes[i].position), offset, n_offset, cell_size)) {
                 nodes[i].type = 2;
             }
         }

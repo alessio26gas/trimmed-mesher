@@ -52,10 +52,11 @@ int get_point_type(Point p, Point *body, int n_points) {
     return inside;
 }
 
-bool is_near_body(Point *p, Point *body, int n_points, double cell_size, double frac) {
+bool is_near_body(Point *p, Point *body, int n_points, double cell_size) {
     double min_distance = cell_size;
     double ABx, ABy, APx, APy, t, Xq, Yq, dx, dy, distance;
     double xp = (*p).x, yp = (*p).y;
+    int i_min;
     for (int i = 0; i < n_points; i++) {
         int j = (i + 1) % n_points;
 
@@ -76,11 +77,37 @@ bool is_near_body(Point *p, Point *body, int n_points, double cell_size, double 
             min_distance = distance;
             xp = Xq;
             yp = Yq;
+            i_min = i;
         }
     }
-    if (min_distance < cell_size / frac) {
-        (*p).x = xp;
-        (*p).y = yp;
+
+    double xp2 = xp, yp2 = yp;
+    for (int i = 0; i < n_points; i++) {
+        if (i == i_min) continue;
+        int j = (i + 1) % n_points;
+
+        ABx = body[j].x - body[i].x;
+        ABy = body[j].y - body[i].y;
+        APx = (*p).x - body[i].x;
+        APy = (*p).y - body[i].y;
+        t = (APx * ABx + APy * ABy)/(ABx * ABx + ABy * ABy);
+        if (t < 0) t = 0;
+        if (t > 1) t = 1;
+        Xq = body[i].x + t * ABx;
+        Yq = body[i].y + t * ABy;
+        dx = Xq - (*p).x;
+        dy = Yq - (*p).y;
+        distance = sqrt(dx * dx + dy * dy);
+
+        if (distance < min_distance + EPSILON) {
+            xp2 = Xq;
+            yp2 = Yq;
+        }
+    }
+
+    if (min_distance < cell_size / (2.0 + EPSILON)) {
+        (*p).x = (xp + xp2) / 2;
+        (*p).y = (yp + yp2) / 2;
         return true;
     }
     return false;
