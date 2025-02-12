@@ -6,18 +6,99 @@
 
 #define PI 3.14159265358979323846
 #define EPSILON 1e-8
+#define MAX_ITER 100
+
+double f(double SF, NearWallLayer nwl) {
+    if (fabs(SF - 1.0) < EPSILON)
+        return nwl.first * nwl.n - nwl.distance;
+    return nwl.first * (1 - pow(SF, nwl.n)) / (1 - SF) - nwl.distance;
+}
+
+double brent(double (*f)(double, NearWallLayer), NearWallLayer nwl) {
+    double a = 1.0;
+    double b = 100.0;
+    double fa = f(a, nwl);
+    double fb = f(b, nwl);
+
+    if (fa * fb > 0) {
+        printf("Error: near wall layer settings are not valid.\n");
+        exit(1);
+    }
+
+    double c = a, fc = fa;
+    double d_new = b;
+    int iter = 0;
+
+    while (iter < MAX_ITER) {
+        if (fabs(fc) < fabs(fb)) {
+            a = b; b = c; c = a;
+            fa = fb; fb = fc; fc = fa;
+        }
+
+        double m = 0.5 * (c - b);
+
+        if (fabs(m) <= EPSILON || fb == 0.0) {
+            return b;
+        }
+
+        if (fabs(m) > EPSILON && fabs(fa - fb) > EPSILON) {
+            double p, q;
+            if (a == c) {
+                p = 2 * m * fb / (fa - fb);
+                q = 1 - fb / (fa - fb);
+            } else {
+                double r = fb / fc, s = fb / fa, t = fa / fc;
+                p = s * (2 * m * t * (t - r) - (b - a) * (r - 1));
+                q = (t - 1) * (r - 1) * (s - 1);
+            }
+
+            if (p > 0) q = -q;
+            p = fabs(p);
+
+            if (2 * p < fmin(3 * m * q - fabs(EPSILON * q), fabs(q * (a - b))))
+                d_new = b + p / q;
+            else
+                d_new = b + m;
+        } else {
+            d_new = b + m;
+        }
+
+        a = b;
+        fa = fb;
+        b = d_new;
+        fb = f(b, nwl);
+
+        if ((fb > 0 && fc > 0) || (fb < 0 && fc < 0)) {
+            c = a;
+            fc = fa;
+        }
+
+        iter++;
+    }
+
+    printf("Brent method did not converge after %d iterations.\n", MAX_ITER);
+    exit(1);
+}
+
+double get_nwl_n(NearWallLayer nwl) {
+    if (nwl.last > 0) return 1 + log(nwl.last/nwl.first)/log(nwl.SF);
+    if (nwl.SF == 1) return nwl.distance/nwl.first - 1;
+    return log(1 - nwl.distance/nwl.first * (1 - nwl.SF))/log(nwl.SF);
+}
+
+double get_nwl_distance(NearWallLayer nwl) {
+    double sum = 0.0;
+    for (int i = 0; i < nwl.n - 1; i++) {
+        sum += pow(nwl.SF, i);
+    }
+    return nwl.first * sum;
+}
 
 double get_SF(NearWallLayer nwl) {
-    if (nwl.last > nwl.first) {
-        if (nwl.n < 3) return 1.0;
-        if (nwl.n == 3) return (nwl.distance-nwl.last-nwl.first)/nwl.first;
-        if (nwl.n == 4) return nwl.last/(nwl.distance-nwl.first);
-        // TODO: SF(n, L)
-        return 1.0;
-    }
     if (nwl.n < 3) return 1.0;
-    // TODO: SF(n)
-    return 1.0;
+    if (nwl.last > 0) return pow(nwl.last / nwl.first, 1.0 / (nwl.n - 1));
+    if (fabs(nwl.distance - nwl.first * nwl.n) < EPSILON) return 1.0;
+    return brent(f, nwl);
 }
 
 bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, double nwl_distance) {
@@ -256,31 +337,28 @@ void extrude_near_wall_cells(
         }
 
         for (int i = 0; i < n_offset_nodes; i++) {
-            int n1, n2, n3, n4;
+            int n1 = (*nodes)[kk + i].id;
+            int n2 = (*nodes)[kk + (i + 1) % n_offset_nodes].id;
+            int n3 = offset_nodes[(i + 1) % n_offset_nodes];
+            int n4 = offset_nodes[i];
+
             if (clockwise) {
-                n1 = (*nodes)[kk + i].id;
-                n2 = (*nodes)[kk + (i + 1) % n_offset_nodes].id;
-                n3 = offset_nodes[(i + 1) % n_offset_nodes];
-                n4 = offset_nodes[i];
+                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
             } else {
-                n4 = (*nodes)[kk + i].id;
-                n3 = (*nodes)[kk + (i + 1) % n_offset_nodes].id;
-                n2 = offset_nodes[(i + 1) % n_offset_nodes];
-                n1 = offset_nodes[i];
+                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
             }
-            (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
             (*n_elements)++;
         }
         return;
     }
 
     // TODO: Create Nodes and Elements with geometric progression distribution
-    double x[nwl.n - 1];
+    double x[nwl.n];
     for (int i = 0; i < nwl.n - 1; i++) {
         double K = 0;
-        for (int k = 0; k <= i; k++) {
+        for (int k = 0; k < i; k++) {
             K += pow(nwl.SF, k);
         }
-        x[i] = nwl.first * K;
+        x[i] = nwl.first / nwl.distance * K;
     }
 }

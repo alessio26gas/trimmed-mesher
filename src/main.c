@@ -43,18 +43,46 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    bool enable_nwl = true;
     NearWallLayer nwl;
-    nwl.first = 0.001;
-    nwl.last = 0.8 * cell_size;
-    nwl.distance = 1.8 * cell_size;
-    nwl.n = 1;
-    nwl.SF = get_SF(nwl);
-
     Point *offset;
     int n_offset;
-    if (!compute_offset(&offset, &n_offset, body, n_body, nwl.distance)) {
-        printf("Invalid geometry.\n");
-        return -1;
+    if (enable_nwl) {
+        nwl.first = 0.002;
+
+        nwl.last = 0.016;
+        nwl.distance = 0.08;
+
+        nwl.n = 5;
+        nwl.SF = 0;
+
+        if (nwl.last > 0) {
+            if (nwl.n > 0) {
+                nwl.SF = get_SF(nwl);
+                nwl.distance = get_nwl_distance(nwl);
+            } else {
+                nwl.n = get_nwl_n(nwl);
+                nwl.distance = get_nwl_distance(nwl);
+            }
+        } else {
+            if (nwl.distance > 0) {
+                if (nwl.n > 0) {
+                    nwl.SF = get_SF(nwl);
+                } else {
+                    nwl.n = get_nwl_n(nwl);
+                }
+            } else {
+                nwl.distance = get_nwl_distance(nwl);
+            }
+        }
+
+        if (!compute_offset(&offset, &n_offset, body, n_body, nwl.distance)) {
+            printf("Invalid geometry.\n");
+            return -1;
+        }
+    } else {
+        offset = body;
+        n_offset = n_body;
     }
 
     int n_nodes = (rows + 1) * (cols + 1);
@@ -141,16 +169,21 @@ int main(int argc, char *argv[]) {
 
     if (pentagons) split_pentagons(&elements, &n_elements);
 
-    int *offset_nodes;
-    int n_offset_nodes = 0;
-    get_offset_nodes(&offset_nodes, &n_offset_nodes, nodes, n_nodes, cell_size);
-    extrude_near_wall_cells(
-        &elements, &n_elements,
-        &nodes, &n_nodes,
-        body, n_body,
-        offset_nodes, n_offset_nodes,
-        nwl
-    );
+    // TODO: Improve mesh quality
+
+    if (enable_nwl) {
+        int *offset_nodes;
+        int n_offset_nodes = 0;
+        get_offset_nodes(&offset_nodes, &n_offset_nodes, nodes, n_nodes, cell_size);
+        extrude_near_wall_cells(
+            &elements, &n_elements,
+            &nodes, &n_nodes,
+            body, n_body,
+            offset_nodes, n_offset_nodes,
+            nwl
+        );
+        free(offset_nodes);
+    }
 
     Element *boundaries = malloc(4 * (rows + cols) * sizeof(Element)); // 4?
     if (!boundaries) {
@@ -168,9 +201,8 @@ int main(int argc, char *argv[]) {
     free(elements);
     free(boundaries);
     free(body);
-    free(offset);
-    free(offset_nodes);
-
+    if (enable_nwl) free(offset);
+    
     printf("Mesh completed. Nodes: %d, Cells: %d\n", n_nodes, n_elements);
     return 0;
 }
