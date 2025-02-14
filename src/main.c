@@ -1,13 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <math.h>
 #include "point.h"
 #include "node.h"
 #include "element.h"
 #include "export.h"
 #include "nearwall.h"
 
-#define EPSILON 1e-8
+#define PI 3.14159265358979323846
+#define EPSILON 1e-12
 
 int main(int argc, char *argv[]) {
 
@@ -76,7 +78,7 @@ int main(int argc, char *argv[]) {
             }
         }
 
-        if (!compute_offset(&offset, &n_offset, body, n_body, nwl.distance)) {
+        if (!compute_offset(&offset, &n_offset, body, n_body, nwl.distance, cell_size)) {
             printf("Invalid geometry.\n");
             return -1;
         }

@@ -5,7 +5,7 @@
 #include <stdio.h>
 
 #define PI 3.14159265358979323846
-#define EPSILON 1e-8
+#define EPSILON 1e-12
 #define MAX_ITER 100
 
 double f(double SF, NearWallLayer nwl) {
@@ -101,7 +101,7 @@ double get_SF(NearWallLayer nwl) {
     return brent(f, nwl);
 }
 
-bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, double nwl_distance) {
+bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, double nwl_distance, double cell_size) {
 
     double A = 0.0;
     for (int i = 0; i < n_body; i++) {
@@ -116,8 +116,8 @@ bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, doub
         int h = (n_body + i - 1) % n_body;
         int j = (i + 1) % n_body;
 
-        double tx_h = (body[i].x - body[h].x);
-        double ty_h = (body[i].y - body[h].y);
+        double tx_h = (body[h].x - body[i].x);
+        double ty_h = (body[h].y - body[i].y);
         double lh = sqrt(tx_h * tx_h + ty_h * ty_h);
         tx_h /= lh;
         ty_h /= lh;
@@ -130,17 +130,14 @@ bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, doub
 
         double angle = acos(tx_h * tx_j + ty_h * ty_j);
         double cross_product = tx_h * ty_j - ty_h * tx_j;
-        if (cross_product * v > 0) {
-            angle = 2 * PI - angle;
-        }
+        angle += (cross_product * v < 0) * (2*PI - 2*angle);
 
         if (angle < EPSILON || angle > 2 * PI - EPSILON) return false;
         if (angle > 1.5 * PI) {
             body[i].x = 0.5 * (body[h].x + body[j].x);
             body[i].y = 0.5 * (body[h].y + body[j].y);
         }
-        if (angle < 0.75 * PI) k += 2;
-        // TODO: Improve offset quality
+        if (angle < 0.75 * PI) k += 2 * ceil(angle * nwl_distance / cell_size / 2);
     }
 
     *n_offset = k;
@@ -151,8 +148,8 @@ bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, doub
         int h = (n_body + i - 1) % n_body;
         int j = (i + 1) % n_body;
 
-        double tx_h = (body[i].x - body[h].x);
-        double ty_h = (body[i].y - body[h].y);
+        double tx_h = (body[h].x - body[i].x);
+        double ty_h = (body[h].y - body[i].y);
         double lh = sqrt(tx_h * tx_h + ty_h * ty_h);
         tx_h /= lh;
         ty_h /= lh;
@@ -163,46 +160,46 @@ bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, doub
         tx_j /= lj;
         ty_j /= lj;
 
+        double angle = acos(tx_h * tx_j + ty_h * ty_j);
+        double cross_product = tx_h * ty_j - ty_h * tx_j;
+        angle += (cross_product * v < 0) * (2*PI - 2*angle);
+
         double bx = tx_h + tx_j;
         double by = ty_h + ty_j;
         double lb = sqrt(bx * bx + by * by);
-        bx /= lb;
-        by /= lb;
-
-        double nx = -by * v;
-        double ny = bx * v;
-    
-        double angle = acos(tx_h * tx_j + ty_h * ty_j);
-        double cross_product = tx_h * ty_j - ty_h * tx_j;
-        if (cross_product * v > 0) {
-            angle = 2 * PI - angle;
-        }
+        bx = bx/lb * (2*(angle > PI) - 1);
+        by = by/lb * (2*(angle > PI) - 1);
 
         if (angle < 0.75 * PI) {
-            double n1x = -ty_h * v;
-            double n1y = tx_h * v;
+            double nhx = ty_h * v;
+            double nhy = -tx_h * v;
 
-            (*offset)[k].x = body[i].x + n1x * nwl_distance;
-            (*offset)[k].y = body[i].y + n1y * nwl_distance;
-            k++;
+            double njx = -ty_j * v;
+            double njy = tx_j * v;
 
-            (*offset)[k].x = body[i].x + nx * nwl_distance;
-            (*offset)[k].y = body[i].y + ny * nwl_distance;
-            k++;
+            double phih = atan2(nhy, nhx);
+            double phij = atan2(njy, njx);
+            printf("%f\n", phih);
+            printf("%f\n", phij);
 
-            double n2x = -ty_j * v;
-            double n2y = tx_j * v;
+            int N = 1 + 2 * ceil(angle * nwl_distance / cell_size / 2);
 
-            (*offset)[k].x = body[i].x + n2x * nwl_distance;
-            (*offset)[k].y = body[i].y + n2y * nwl_distance;
-            k++;
+            for (int n = 0; n < N; n++) {
+                double phin = phih * (1 - ((double) n)/(N-1)) + ((double) n)/(N-1) * phij;
+                printf("%f ", phin);
+                (*offset)[k].x = body[i].x + cos(phin) * nwl_distance;
+                (*offset)[k].y = body[i].y + sin(phin) * nwl_distance;
+                k++;
+            }
+            printf("\n");
+
         } else if (angle > 1.25 * PI) {
-            (*offset)[k].x = body[i].x + sqrt(2) * nx * nwl_distance;
-            (*offset)[k].y = body[i].y + sqrt(2) * ny * nwl_distance;
+            (*offset)[k].x = body[i].x + sqrt(2) * bx * nwl_distance;
+            (*offset)[k].y = body[i].y + sqrt(2) * by * nwl_distance;
             k++;       
         } else {
-            (*offset)[k].x = body[i].x + nx * nwl_distance;
-            (*offset)[k].y = body[i].y + ny * nwl_distance;
+            (*offset)[k].x = body[i].x + bx * nwl_distance;
+            (*offset)[k].y = body[i].y + by * nwl_distance;
             k++;
         }
     }
