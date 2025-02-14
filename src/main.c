@@ -45,6 +45,17 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    double AoA = 0.0 / 180 * PI;
+    if (AoA != 0.0) {
+        double xt, yt;
+        for (int i = 0; i < n_body; i++) {
+            xt = cos(AoA) * (body[i].x - 0.25) + sin(AoA) * body[i].y;
+            yt = -sin(AoA) * (body[i].x - 0.25) + cos(AoA) *body[i].y;
+            body[i].x = xt + 0.25;
+            body[i].y = yt;
+        }
+    }
+
     bool enable_nwl = true;
     NearWallLayer nwl;
     Point *offset;
