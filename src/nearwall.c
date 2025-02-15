@@ -307,19 +307,67 @@ void extrude_near_wall_cells(
         pA[i] = (*nodes)[offset_nodes[i]-1].position;
     }
 
+    Point pB[n_offset_nodes];
+    for (int i = 0; i < n_offset_nodes; i++) {
+        pB[i] = nearest_point(pA[i], body, n_body, nwl.distance);
+    }
+
+    int r[n_offset_nodes];
+    int l[n_offset_nodes];
+    int c[n_offset_nodes];
+    for (int i = 0; i < n_offset_nodes; i++) {
+        c[i] = 0;
+    }
+    bool singularities = true;
+
+    while (singularities) {
+        singularities = false;
+        for (int i = 0; i < n_offset_nodes; i++) {
+            int j = (i + 1) % n_offset_nodes;
+            int h = (n_offset_nodes + i - 1) % n_offset_nodes;
+            r[i] = 0; l[i] = 0;
+            if (points_are_equal(pB[i], pB[j])) r[i] = 1;
+            if (points_are_equal(pB[i], pB[h])) l[i] = 1;
+        }
+
+        for (int i = 0; i < n_offset_nodes; i++) {
+            if (l[i] == 1 && r[i] == 1) {
+                singularities = true;
+                c[i] = 1;
+            }
+            if (l[i] == 1 && r[i] == 0) {
+                int j = (i + 1) % n_offset_nodes;
+                if (c[i] == 1) {
+                    pB[i].x = 0.5 * pB[i].x + 0.5 * pB[j].x;
+                    pB[i].y = 0.5 * pB[i].y + 0.5 * pB[j].y;                   
+                } else {
+                    pB[i].x = 0.67 * pB[i].x + 0.33 * pB[j].x;
+                    pB[i].y = 0.67 * pB[i].y + 0.33 * pB[j].y;
+                }
+            }
+            if (l[i] == 0 && r[i] == 1) {
+                int h = (n_offset_nodes + i - 1) % n_offset_nodes;
+                if (c[i] == 1) {
+                    pB[i].x = 0.5 * pB[i].x + 0.5 * pB[h].x;
+                    pB[i].y = 0.5 * pB[i].y + 0.5 * pB[h].y;    
+                } else {
+                    pB[i].x = 0.67 * pB[i].x + 0.33 * pB[h].x;
+                    pB[i].y = 0.67 * pB[i].y + 0.33 * pB[h].y;    
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < n_offset_nodes; i++) {
+        pB[i] = nearest_point(pB[i], body, n_body, nwl.distance);
+    }
+
     double A = 0.0;
     for (int i = 0; i < n_offset_nodes; i++) {
         int j = (i + 1) % n_offset_nodes;
         A += (pA[i].x * pA[j].y) - (pA[j].x * pA[i].y);
     }
     bool clockwise = (A < 0);
-
-    Point pB[n_offset_nodes];
-    for (int i = 0; i < n_offset_nodes; i++) {
-        pB[i] = nearest_point(pA[i], body, n_body, nwl.distance);
-    }
-
-    // TODO: Optimize surface points distribution
 
     if (nwl.n == 1) {
         int kk = *n_nodes;
