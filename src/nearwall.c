@@ -137,7 +137,7 @@ bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, doub
             body[i].x = 0.5 * (body[h].x + body[j].x);
             body[i].y = 0.5 * (body[h].y + body[j].y);
         }
-        if (angle < 0.75 * PI) k += 2 * ceil(angle * nwl_distance / cell_size / 2);
+        if (angle < 0.75 * PI) k += 2 * ceil((PI - angle) * nwl_distance / cell_size / 2);
     }
 
     *n_offset = k;
@@ -179,19 +179,15 @@ bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, doub
 
             double phih = atan2(nhy, nhx);
             double phij = atan2(njy, njx);
-            printf("%f\n", phih);
-            printf("%f\n", phij);
 
-            int N = 1 + 2 * ceil(angle * nwl_distance / cell_size / 2);
+            int N = 1 + 2 * ceil((PI - angle) * nwl_distance / cell_size / 2);
 
             for (int n = 0; n < N; n++) {
                 double phin = phih * (1 - ((double) n)/(N-1)) + ((double) n)/(N-1) * phij;
-                printf("%f ", phin);
                 (*offset)[k].x = body[i].x + cos(phin) * nwl_distance;
                 (*offset)[k].y = body[i].y + sin(phin) * nwl_distance;
                 k++;
             }
-            printf("\n");
 
         } else if (angle > 1.25 * PI) {
             (*offset)[k].x = body[i].x + sqrt(2) * bx * nwl_distance;
