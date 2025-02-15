@@ -133,11 +133,7 @@ bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, doub
         angle += (cross_product * v < 0) * (2*PI - 2*angle);
 
         if (angle < EPSILON || angle > 2 * PI - EPSILON) return false;
-        if (angle > 1.5 * PI) {
-            body[i].x = 0.5 * (body[h].x + body[j].x);
-            body[i].y = 0.5 * (body[h].y + body[j].y);
-        }
-        if (angle < 0.75 * PI) k += 2 * ceil((PI - angle) * nwl_distance / cell_size / 2);
+        if (angle < PI) k += 2 * ceil((PI - angle) * nwl_distance / cell_size / 2);
     }
 
     *n_offset = k;
@@ -164,13 +160,7 @@ bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, doub
         double cross_product = tx_h * ty_j - ty_h * tx_j;
         angle += (cross_product * v < 0) * (2*PI - 2*angle);
 
-        double bx = tx_h + tx_j;
-        double by = ty_h + ty_j;
-        double lb = sqrt(bx * bx + by * by);
-        bx = bx/lb * (2*(angle > PI) - 1);
-        by = by/lb * (2*(angle > PI) - 1);
-
-        if (angle < 0.75 * PI) {
+        if (angle < PI) {
             double nhx = ty_h * v;
             double nhy = -tx_h * v;
 
@@ -183,19 +173,31 @@ bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, doub
             int N = 1 + 2 * ceil((PI - angle) * nwl_distance / cell_size / 2);
 
             for (int n = 0; n < N; n++) {
-                double phin = phih * (1 - ((double) n)/(N-1)) + ((double) n)/(N-1) * phij;
+                double alpha = ((double) n) / (N - 1);
+                double phin = atan2(
+                    (1 - alpha) * sin(phih) + alpha * sin(phij),
+                    (1 - alpha) * cos(phih) + alpha * cos(phij)
+                );
                 (*offset)[k].x = body[i].x + cos(phin) * nwl_distance;
                 (*offset)[k].y = body[i].y + sin(phin) * nwl_distance;
                 k++;
             }
 
-        } else if (angle > 1.25 * PI) {
-            (*offset)[k].x = body[i].x + sqrt(2) * bx * nwl_distance;
-            (*offset)[k].y = body[i].y + sqrt(2) * by * nwl_distance;
-            k++;       
         } else {
-            (*offset)[k].x = body[i].x + bx * nwl_distance;
-            (*offset)[k].y = body[i].y + by * nwl_distance;
+            double bx = tx_h + tx_j;
+            double by = ty_h + ty_j;
+            double lb = sqrt(bx * bx + by * by);
+    
+            if (lb > EPSILON) {
+                bx /= lb;
+                by /= lb;    
+            } else {
+                bx = -ty_j * v;
+                by = tx_j * v;
+            }
+
+            (*offset)[k].x = body[i].x + bx * nwl_distance / sin(angle/2);
+            (*offset)[k].y = body[i].y + by * nwl_distance / sin(angle/2);
             k++;
         }
     }
