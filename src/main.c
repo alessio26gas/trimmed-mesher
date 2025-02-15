@@ -63,22 +63,21 @@ int main(int argc, char *argv[]) {
     Point *offset;
     int n_offset;
     if (enable_nwl) {
-        nwl.first = 0.002;
+        nwl.first = 5.0e-5;
 
-        nwl.last = 0.016;
-        nwl.distance = 0.08;
+        nwl.last = 0.9 * cell_size;
+        nwl.distance = 0;
 
-        nwl.n = 5;
-        nwl.SF = 0;
+        nwl.n = 0;
+        nwl.SF = 1.3;
 
         if (nwl.last > 0) {
-            if (nwl.n > 3) {
+            if (nwl.n > 2) {
                 nwl.SF = get_SF(nwl);
-                nwl.distance = get_nwl_distance(nwl);
             } else if (!nwl.n > 0) {
                 nwl.n = get_nwl_n(nwl);
-                nwl.distance = get_nwl_distance(nwl);
             }
+            nwl.distance = get_nwl_distance(nwl);
         } else {
             if (nwl.distance > 0) {
                 if (nwl.n > 0) {

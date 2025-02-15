@@ -16,7 +16,7 @@ double f(double SF, NearWallLayer nwl) {
 
 double brent(double (*f)(double, NearWallLayer), NearWallLayer nwl) {
     double a = 1.0;
-    double b = 100.0;
+    double b = 1.0e6;
     double fa = f(a, nwl);
     double fb = f(b, nwl);
 
