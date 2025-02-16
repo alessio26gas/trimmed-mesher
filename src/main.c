@@ -7,47 +7,36 @@
 #include "element.h"
 #include "export.h"
 #include "nearwall.h"
+#include "input.h"
 
 #define PI 3.14159265358979323846
 #define EPSILON 1e-12
 
 int main(int argc, char *argv[]) {
 
-    if (argc < 4 || argc > 7) {
-        printf("Usage: %s <curve.csv> <cell_size> <rows> [columns] [X0] [Y0]\n", argv[0]);
-        return -1;
-    }
+    Input input = get_input();
 
-    double cell_size = atof(argv[2]);
-    int rows = atoi(argv[3]);
-    int cols;
-
-    if (argc == 4) {
-        cols = rows;
-    } else {
-        cols = atoi(argv[4]);
-    }
+    double cell_size = input.cell_size;
+    int rows = input.rows;
+    int cols = input.cols;
 
     if (rows < EPSILON || cols < EPSILON || cell_size < EPSILON) {
         printf("Unvalid values.\n");
-        printf("Usage: %s <curve.csv> <cell_size> <rows> [columns] [X0] [Y0]\n", argv[0]);
         return -1;
     }
 
-    double X0 = - cell_size * cols / 2;
-    double Y0 = - cell_size * rows / 2;
-    if (argc >= 6) X0 += atof(argv[5]);
-    if (argc == 7) Y0 += atof(argv[6]);
+    double X0 = - cell_size * cols / 2 + input.center.x;
+    double Y0 = - cell_size * rows / 2 + input.center.y;
 
     Point *body;
     int n_body;
-    if (load_body(argv[1], &body, &n_body) != 0) {
+    if (load_body(input.curve, &body, &n_body) != 0) {
         return -1;
     }
 
-    double AoA = 0.0 / 180 * PI;
-    double xc = 0.25;
-    double yc = 0.0;
+    double AoA = input.rotation_angle / 180 * PI;
+    double xc = input.rotation_center.x;
+    double yc = input.rotation_center.y;
     if (AoA != 0.0) {
         double xt, yt;
         for (int i = 0; i < n_body; i++) {
@@ -58,18 +47,12 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    bool enable_nwl = true;
+    bool enable_nwl = input.enable_nwl;
     NearWallLayer nwl;
     Point *offset;
     int n_offset;
     if (enable_nwl) {
-        nwl.first = 5.0e-5;
-
-        nwl.last = 0.9 * cell_size;
-        nwl.distance = 0;
-
-        nwl.n = 0;
-        nwl.SF = 1.3;
+        nwl = input.nwl;
 
         if (nwl.last > 0) {
             if (nwl.n > 2) {
@@ -209,7 +192,7 @@ int main(int argc, char *argv[]) {
 
     // TODO: Define Boundary Elements
 
-    write_mesh_file("mesh.msh", nodes, n_nodes, elements, n_elements, boundaries, n_boundaries);
+    write_mesh_file(input.outputfile, nodes, n_nodes, elements, n_elements, boundaries, n_boundaries);
 
     free(nodes);
     free(elements);
