@@ -8,6 +8,8 @@
 typedef struct {
     char *curve;
     double cell_size;
+    int coarsening_levels[4];
+    int coarsening_cells[4];
     int rows;
     int cols;
     Point center;

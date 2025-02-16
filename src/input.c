@@ -5,9 +5,12 @@
 Input get_input() {
     Input input = (Input){
 
-        .curve = ".curve.csv",
+        .curve = "curve.csv",
 
-        .cell_size = 0.1,
+        .cell_size = 0.01,
+
+        .coarsening_levels = {0, 0, 0, 0},
+        .coarsening_cells = {0, 0, 0, 0},
 
         .rows = 256,
         .cols = 256,

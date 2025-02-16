@@ -7,6 +7,7 @@
 #include "element.h"
 #include "export.h"
 #include "nearwall.h"
+#include "coarsening.h"
 #include "input.h"
 
 #define PI 3.14159265358979323846
@@ -181,6 +182,8 @@ int main(int argc, char *argv[]) {
         );
         free(offset_nodes);
     }
+
+    coarsening(&nodes, &n_nodes, &elements, &n_elements, input);
 
     Element *boundaries = malloc(4 * (rows + cols) * sizeof(Element)); // 4?
     if (!boundaries) {
