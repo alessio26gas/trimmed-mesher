@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#define EPSILON 1e-8
+#define EPSILON 1e-12
 
 int load_body(const char *filename, Point **body, int *n_points) {
     FILE *file = fopen(filename, "r");
@@ -128,4 +128,14 @@ bool get_intersection(Point a, Point b, Point c, Point d, Point *intersect) {
 
 bool points_are_equal(Point a, Point b) {
     return (fabs(a.x - b.x) < EPSILON) && (fabs(a.y - b.y) < EPSILON);
+}
+
+bool points_are_close(Point a, Point b, double toll) {
+    return (fabs(a.x - b.x) < toll + EPSILON) && (fabs(a.y - b.y) < toll + EPSILON);
+}
+
+double get_distance(Point a, Point b) {
+    double dx = a.x - b.x;
+    double dy = a.y - b.y;
+    return sqrt(dx*dx + dy*dy);
 }
