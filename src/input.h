@@ -10,6 +10,8 @@ typedef struct {
     double cell_size;
     int coarsening_levels[4];
     int coarsening_cells[4];
+    bool fast_coarsening;
+    bool conformal_coarsening;
     int rows;
     int cols;
     Point center;

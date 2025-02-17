@@ -11,6 +11,8 @@ Input get_input() {
 
         .coarsening_levels = {0, 0, 0, 0},
         .coarsening_cells = {0, 0, 0, 0},
+        .fast_coarsening = false,
+        .conformal_coarsening = false,
 
         .rows = 256,
         .cols = 256,
