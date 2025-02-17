@@ -204,19 +204,13 @@ bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, doub
     return true;
 }
 
-double get_distance(Node a, Node b) {
-    double dx = a.position.x - b.position.x;
-    double dy = a.position.y - b.position.y;
-    return sqrt(dx*dx + dy*dy);
-}
-
 int nearest_node(Node *nodes, int *ids, int n, int current, int *flag, double cell_size) {
     int nearest = -1;
     double min_distance = 2 * cell_size;
 
     for (int i = 0; i < n; i++) {
         if (!flag[i]) {
-            double distance = get_distance(nodes[current], nodes[i]);
+            double distance = get_distance(nodes[current].position, nodes[i].position);
             if (distance < min_distance) {
                 min_distance = distance;
                 nearest = i;
