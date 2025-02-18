@@ -95,7 +95,8 @@ int main(int argc, char *argv[]) {
         for (int j = 0; j <= cols; j++) {
             Point p = {X0 + j * cell_size, Y0 + i * cell_size};
             int type = get_point_type(p, offset, n_offset);
-            nodes[node_id - 1] = (Node){node_id++, type, p};
+            nodes[node_id - 1] = (Node){node_id, type, p};
+            node_id++;
         }
     }
 
