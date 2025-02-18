@@ -241,7 +241,7 @@ int main(int argc, char *argv[]) {
             if (sum < EPSILON) {
                 printf("Smoothing iteration %d: residuals = %.4e\n", k, sum);
                 end = clock();
-                printf("Smoothing algorithm converged in %d iterations.\n", k, (float) (end - start) / CLOCKS_PER_SEC);
+                printf("Smoothing algorithm converged in %d iterations. (%.2f seconds)\n", k, (float) (end - start) / CLOCKS_PER_SEC);
                 break;
             }
             if (k % 1000 == 0) printf("Smoothing iteration %d: residuals = %.4e\n", k, sum);
