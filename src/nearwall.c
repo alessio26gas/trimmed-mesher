@@ -261,8 +261,8 @@ void get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int 
         return;
     }
 
-    Node type2_nodes[*n_offset_nodes];
-    int ids[*n_offset_nodes];
+    Node *type2_nodes = malloc(*n_offset_nodes * sizeof(Node));
+    int *ids = malloc(*n_offset_nodes * sizeof(int));
     int count = 0;
     for (int i = 0; i < n_nodes; i++) {
         if (nodes[i].type == 2) {
@@ -272,7 +272,7 @@ void get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int 
         }
     }
 
-    int flag[*n_offset_nodes];
+    int *flag = malloc(*n_offset_nodes * sizeof(int));
     for (int i = 0; i < *n_offset_nodes; i++) flag[i] = 0;
 
     int current = 0;
@@ -296,19 +296,19 @@ void extrude_near_wall_cells(
     int *offset_nodes, int n_offset_nodes,
     NearWallLayer nwl
 ) {
-    Point pA[n_offset_nodes];
+    Point *pA = malloc(n_offset_nodes * sizeof(Point));
     for (int i = 0; i < n_offset_nodes; i++) {
         pA[i] = (*nodes)[offset_nodes[i]-1].position;
     }
 
-    Point pB[n_offset_nodes];
+    Point *pB = malloc(n_offset_nodes * sizeof(Point));
     for (int i = 0; i < n_offset_nodes; i++) {
         pB[i] = nearest_point(pA[i], body, n_body, nwl.distance);
     }
 
-    int r[n_offset_nodes];
-    int l[n_offset_nodes];
-    int c[n_offset_nodes];
+    int *r = malloc(n_offset_nodes * sizeof(int));
+    int *l = malloc(n_offset_nodes * sizeof(int));
+    int *c = malloc(n_offset_nodes * sizeof(int));
     for (int i = 0; i < n_offset_nodes; i++) {
         c[i] = 0;
     }
@@ -493,7 +493,7 @@ void extrude_near_wall_cells(
         return;
     }
 
-    double x[nwl.n - 1];
+    double *x = malloc((nwl.n - 1) * sizeof(double));
     double K = 0;
     for (int i = 0; i < nwl.n - 1; i++) {
         K += pow(nwl.SF, i);
