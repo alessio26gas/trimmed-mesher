@@ -56,7 +56,7 @@ bool is_near_body(Point *p, Point *body, int n_points, double cell_size) {
     double min_distance = cell_size;
     double ABx, ABy, APx, APy, t, Xq, Yq, dx, dy, distance;
     double xp = (*p).x, yp = (*p).y;
-    int i_min;
+    int i_min = 0;
     for (int i = 0; i < n_points; i++) {
         int j = (i + 1) % n_points;
 
