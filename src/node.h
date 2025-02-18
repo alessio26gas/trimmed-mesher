@@ -9,7 +9,6 @@ typedef struct {
     Point position;
 } Node;
 
-int find_or_add_node(Point p, Node *nodes, int *n_nodes);
 void find_and_update(int *nA, int *nB, Point *body, int n_points, Node **nodes, int *n_nodes);
 
 #endif
