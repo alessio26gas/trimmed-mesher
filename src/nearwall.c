@@ -21,7 +21,7 @@ double brent(double (*f)(double, NearWallLayer), NearWallLayer nwl) {
     double fb = f(b, nwl);
 
     if (fa * fb > 0) {
-        printf("Error: near wall layer settings are not valid.\n");
+        printf("\nError: near wall layer settings are not valid.\n");
         exit(1);
     }
 
@@ -76,7 +76,7 @@ double brent(double (*f)(double, NearWallLayer), NearWallLayer nwl) {
         iter++;
     }
 
-    printf("Brent method did not converge after %d iterations.\n", MAX_ITER);
+    printf("\nBrent method did not converge after %d iterations.\n", MAX_ITER);
     exit(1);
 }
 

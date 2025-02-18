@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <time.h>
 #include "point.h"
 #include "node.h"
 #include "element.h"
@@ -15,6 +16,16 @@
 
 int main(int argc, char *argv[]) {
 
+    for (int i = 0; i < 70; i++) printf("-");
+    printf("\n");
+    for (int i = 0; i < 17; i++) printf(" ");
+    printf("[Trimmed Mesher Development Version]\n");
+    for (int i = 0; i < 70; i++) printf("-");
+    printf("\n");
+
+    clock_t global_start = clock();
+    clock_t start = global_start;
+
     Input input = get_input();
 
     double cell_size = input.cell_size;
@@ -22,23 +33,29 @@ int main(int argc, char *argv[]) {
     int cols = input.cols;
 
     if (rows < EPSILON || cols < EPSILON || cell_size < EPSILON) {
-        printf("Unvalid values.\n");
+        printf("Unvalid input values.\n");
         return -1;
     }
 
     double X0 = - cell_size * cols / 2 + input.center.x;
     double Y0 = - cell_size * rows / 2 + input.center.y;
 
+    printf("Loading curve...");
     Point *body;
     int n_body;
     if (load_body(input.curve, &body, &n_body) != 0) {
+        printf(" Failed.\n");
         return -1;
     }
+    clock_t end = clock();
+    printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
     double AoA = input.rotation_angle / 180 * PI;
     double xc = input.rotation_center.x;
     double yc = input.rotation_center.y;
     if (AoA != 0.0) {
+        printf("Rotating curve...");
+        start = end;
         double xt, yt;
         for (int i = 0; i < n_body; i++) {
             xt = cos(AoA) * (body[i].x - xc) + sin(AoA) * (body[i].y - yc);
@@ -46,6 +63,8 @@ int main(int argc, char *argv[]) {
             body[i].x = xt + xc;
             body[i].y = yt + yc;
         }
+        end = clock();
+        printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }
 
     bool enable_nwl = input.enable_nwl;
@@ -55,6 +74,8 @@ int main(int argc, char *argv[]) {
     if (enable_nwl) {
         nwl = input.nwl;
 
+        printf("Computing near wall parameters...");
+        start = end;
         if (nwl.last > 0) {
             if (nwl.n > 2) {
                 nwl.SF = get_SF(nwl);
@@ -73,23 +94,36 @@ int main(int argc, char *argv[]) {
                 nwl.distance = get_nwl_distance(nwl);
             }
         }
+        end = clock();
+        printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+        printf("Computing curve offset...");
+        start = end;
         if (!compute_offset(&offset, &n_offset, body, n_body, nwl.distance, cell_size)) {
             printf("Invalid geometry.\n");
             return -1;
         }
+        end = clock();
+        printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     } else {
         offset = body;
         n_offset = n_body;
     }
 
+    printf("Allocating memory for nodes...");
+    start = end;
     int n_nodes = (rows + 1) * (cols + 1);
     Node *nodes = malloc(2 * n_nodes * sizeof(Node)); // 2?
     if (!nodes) {
         perror("An error has occurred");
+        printf(" Failed.\n");
         return -1;
     }
+    end = clock();
+    printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+    printf("Generating initial cartesian grid...");
+    start = end;
     int node_id = 1;
     for (int i = 0; i <= rows; i++) {
         for (int j = 0; j <= cols; j++) {
@@ -99,7 +133,11 @@ int main(int argc, char *argv[]) {
             node_id++;
         }
     }
+    end = clock();
+    printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+    printf("Optimizing near body nodes position...");
+    start = end;
     for (int i = 0; i < n_nodes; i++) {
         if (nodes[i].type != 0) continue;
         if (is_near_body(&(nodes[i].position), offset, n_offset, cell_size)) {
@@ -121,13 +159,22 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+    end = clock();
+    printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+    printf("Allocating memory for elements...");
+    start = end;
     Element *elements = malloc(2 * rows * cols * sizeof(Element)); // 2?
     if (!elements) {
         perror("An error has occurred");
+        printf(" Failed.\n");
         return -1;
     }
+    end = clock();
+    printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+    printf("Computing elements...");
+    start = end;
     bool pentagons = false;
     int element_id = 1, n_elements = 0;
     for (int i = 0; i < rows; i++) {
@@ -165,10 +212,20 @@ int main(int argc, char *argv[]) {
             }
         }
     }
+    end = clock();
+    printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
-    if (pentagons) split_pentagons(&elements, &n_elements);
+    if (pentagons) {
+        printf("Splitting pentagons...");
+        start = end;
+        split_pentagons(&elements, &n_elements);
+        end = clock();
+        printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
+    }
 
     if (input.smoothing) {
+        printf("Executing smoothing algorithm...\n");
+        start = end;
         for (int k = 1; k <= input.smoothing_iterations; k++) {
             double sum = 0.0;
             for (int c = 2; c < cols; c++) {
@@ -183,13 +240,21 @@ int main(int argc, char *argv[]) {
             }
             if (sum < EPSILON) {
                 printf("Smoothing iteration %d: residuals = %.4e\n", k, sum);
+                end = clock();
+                printf("Smoothing algorithm converged in %d iterations.\n", k, (float) (end - start) / CLOCKS_PER_SEC);
                 break;
             }
             if (k % 1000 == 0) printf("Smoothing iteration %d: residuals = %.4e\n", k, sum);
+            if (k == input.smoothing_iterations) {
+                end = clock();
+                printf("Smoothing algorithm stopped at %d iterations. (%.2f seconds)\n", k, (float) (end - start) / CLOCKS_PER_SEC);
+            }
         }
     }
 
     if (enable_nwl) {
+        printf("Generating near wall cells...");
+        start = end;
         int *offset_nodes;
         int n_offset_nodes = 0;
         get_offset_nodes(&offset_nodes, &n_offset_nodes, nodes, n_nodes, cell_size);
@@ -201,6 +266,8 @@ int main(int argc, char *argv[]) {
             nwl
         );
         free(offset_nodes);
+        end = clock();
+        printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }
 
     coarsening(&nodes, &n_nodes, &elements, &n_elements, input);
@@ -208,6 +275,7 @@ int main(int argc, char *argv[]) {
     Element *boundaries = malloc(4 * (rows + cols) * sizeof(Element)); // 4?
     if (!boundaries) {
         perror("An error has occurred");
+        printf(" Failed.\n");
         return -1;
     }
 
@@ -215,14 +283,22 @@ int main(int argc, char *argv[]) {
 
     // TODO: Define Boundary Elements
 
+    printf("Writing output mesh file...");
+    start = clock();
     write_mesh_file(input.outputfile, nodes, n_nodes, elements, n_elements, boundaries, n_boundaries);
+    end = clock();
+    printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
     free(nodes);
     free(elements);
     free(boundaries);
     free(body);
     if (enable_nwl) free(offset);
-    
-    printf("Mesh completed. Nodes: %d, Cells: %d\n", n_nodes, n_elements);
+
+    for (int i = 0; i < 70; i++) printf("-");
+    printf("\nMesh completed in %.2f seconds. Nodes: %d. Cells: %d.\n", (float) (clock() - global_start) / CLOCKS_PER_SEC, n_nodes, n_elements);
+    for (int i = 0; i < 70; i++) printf("-");
+    printf("\n");
+
     return 0;
 }

@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 #define EPSILON 1e-12
 
@@ -21,6 +22,8 @@ void coarsening(Node **nodes, int *n_nodes, Element **elements, int *n_elements,
         return;
     }
 
+    printf("Executing non-conformal coarsening...");
+    clock_t start = clock();
     (*nodes) = realloc((*nodes), max_level * 2 * (*n_nodes) * sizeof(Node));
     (*elements) = realloc((*elements), max_level * 2 * (*n_elements) * sizeof(Element));
 
@@ -78,4 +81,6 @@ void coarsening(Node **nodes, int *n_nodes, Element **elements, int *n_elements,
             }
         }
     }
+    clock_t end = clock();
+    printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 }
