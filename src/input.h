@@ -18,6 +18,7 @@ typedef struct {
     double rotation_angle;
     Point rotation_center;
     bool smoothing;
+    int smoothing_iterations;
     bool enable_nwl;
     NearWallLayer nwl;
     char *outputfile;

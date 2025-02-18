@@ -29,6 +29,7 @@ Input get_input() {
         .rotation_center = (Point){0.0, 0.0},
 
         .smoothing = true,
+        .smoothing_iterations = 1000,
 
         .enable_nwl = true,
         .nwl.first = 5.0e-5,

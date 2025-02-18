@@ -168,24 +168,8 @@ int main(int argc, char *argv[]) {
 
     if (pentagons) split_pentagons(&elements, &n_elements);
 
-    // TODO: Improve mesh quality
-
-    if (enable_nwl) {
-        int *offset_nodes;
-        int n_offset_nodes = 0;
-        get_offset_nodes(&offset_nodes, &n_offset_nodes, nodes, n_nodes, cell_size);
-        extrude_near_wall_cells(
-            &elements, &n_elements,
-            &nodes, &n_nodes,
-            body, n_body,
-            offset_nodes, n_offset_nodes,
-            nwl
-        );
-        free(offset_nodes);
-    }
-
     if (input.smoothing) {
-        for (int k = 1; k < 100000; k++) {
+        for (int k = 1; k <= input.smoothing_iterations; k++) {
             double sum = 0.0;
             for (int c = 2; c < cols; c++) {
                 for (int r = 2; r < rows; r++) {
@@ -203,6 +187,20 @@ int main(int argc, char *argv[]) {
             }
             if (k % 1000 == 0) printf("Smoothing iteration %d: residuals = %.4e\n", k, sum);
         }
+    }
+
+    if (enable_nwl) {
+        int *offset_nodes;
+        int n_offset_nodes = 0;
+        get_offset_nodes(&offset_nodes, &n_offset_nodes, nodes, n_nodes, cell_size);
+        extrude_near_wall_cells(
+            &elements, &n_elements,
+            &nodes, &n_nodes,
+            body, n_body,
+            offset_nodes, n_offset_nodes,
+            nwl
+        );
+        free(offset_nodes);
     }
 
     coarsening(&nodes, &n_nodes, &elements, &n_elements, input);
