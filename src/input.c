@@ -3,11 +3,17 @@
 #include <stdlib.h>
 
 Input get_input() {
+
+    char *curve = "curve.csv";
+    char *outputfile = "mesh.msh";
+
+    double cell_size = 0.01;
+
     Input input = (Input){
 
-        .curve = "curve.csv",
+        .curve = curve,
 
-        .cell_size = 0.01,
+        .cell_size = cell_size,
 
         .coarsening_levels = {0, 0, 0, 0},
         .coarsening_cells = {0, 0, 0, 0},
@@ -26,12 +32,12 @@ Input get_input() {
 
         .enable_nwl = true,
         .nwl.first = 5.0e-5,
-        .nwl.last = input.cell_size,
+        .nwl.last = cell_size,
         .nwl.distance = 0,
         .nwl.n = 0,
         .nwl.SF = 1.3,
 
-        .outputfile = "mesh.msh"
+        .outputfile = outputfile
     };
 
     return input;
