@@ -183,6 +183,27 @@ int main(int argc, char *argv[]) {
         free(offset_nodes);
     }
 
+    if (input.smoothing) {
+        for (int k = 1; k < 100000; k++) {
+            double sum = 0.0;
+            for (int c = 2; c < cols; c++) {
+                for (int r = 2; r < rows; r++) {
+                    int i = c + r * (cols + 1);
+                    if (nodes[i].type != 0) continue;
+                    sum += fabs((nodes[i+1].position.x + nodes[i-1].position.x + nodes[i-cols-1].position.x + nodes[i+cols+1].position.x)/4.0 - nodes[i].position.x);
+                    sum += fabs((nodes[i+1].position.y + nodes[i-1].position.y + nodes[i-cols-1].position.y + nodes[i+cols+1].position.y)/4.0 - nodes[i].position.y);
+                    nodes[i].position.x = (nodes[i+1].position.x + nodes[i-1].position.x + nodes[i-cols-1].position.x + nodes[i+cols+1].position.x)/4.0;
+                    nodes[i].position.y = (nodes[i+1].position.y + nodes[i-1].position.y + nodes[i-cols-1].position.y + nodes[i+cols+1].position.y)/4.0;    
+                }
+            }
+            if (sum < EPSILON) {
+                printf("Smoothing iteration %d: residuals = %.4e\n", k, sum);
+                break;
+            }
+            if (k % 1000 == 0) printf("Smoothing iteration %d: residuals = %.4e\n", k, sum);
+        }
+    }
+
     coarsening(&nodes, &n_nodes, &elements, &n_elements, input);
 
     Element *boundaries = malloc(4 * (rows + cols) * sizeof(Element)); // 4?

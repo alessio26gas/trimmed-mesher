@@ -22,6 +22,8 @@ Input get_input() {
         .rotation_angle = 0.0,
         .rotation_center = (Point){0.0, 0.0},
 
+        .smoothing = true,
+
         .enable_nwl = true,
         .nwl.first = 5.0e-5,
         .nwl.last = input.cell_size,
