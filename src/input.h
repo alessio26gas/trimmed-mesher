@@ -24,6 +24,6 @@ typedef struct {
     char *outputfile;
 } Input;
 
-Input get_input();
+Input get_input(int argc, char *argv[]);
 
 #endif
