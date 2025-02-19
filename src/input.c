@@ -66,8 +66,6 @@ Input get_input(int argc, char *argv[]) {
     input = (Input){
         .curve = curve,
         .cell_size = cell_size,
-        .coarsening_levels = *coarsening_levels,
-        .coarsening_cells = *coarsening_cells,
         .fast_coarsening = fast_coarsening,
         .conformal_coarsening = conformal_coarsening,
         .rows = rows,
@@ -81,6 +79,9 @@ Input get_input(int argc, char *argv[]) {
         .nwl = nwl,
         .outputfile = outputfile
     };
+
+    memcpy(input.coarsening_levels, coarsening_levels, sizeof(coarsening_levels));
+    memcpy(input.coarsening_cells, coarsening_cells, sizeof(coarsening_cells));
 
     return input;
 }
