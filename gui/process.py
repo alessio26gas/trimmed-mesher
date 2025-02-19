@@ -17,13 +17,20 @@ class ProcessHandler:
         exe = "mesher.exe" if sys.platform == "win32" else "mesher"
         command = [resource_path(exe)] + inputs
 
+        startupinfo = None
+        if sys.platform == "win32":
+            startupinfo = subprocess.STARTUPINFO()
+            startupinfo.dwFlags |= subprocess.STARTF_USESHOWWINDOW
+
         try:
             self.process = subprocess.Popen(
                 command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.STDOUT,
                 text=True,
-                bufsize=1
+                bufsize=1,
+                startupinfo=startupinfo,
+                creationflags=subprocess.CREATE_NO_WINDOW if sys.platform == "win32" else 0
             )
 
             threading.Thread(target=self._read_output, daemon=True).start()
