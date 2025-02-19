@@ -136,6 +136,30 @@ class TrimmedMesher(ctk.CTk):
         # Near Wall Cells Frame
         self.nwl_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
 
+        ctk.CTkLabel(self.nwl_frame, text="Enable near wall layer").place(anchor="w", relx=0.01, rely=1/10)
+        self.enable_nwl_cb = ctk.CTkCheckBox(self.nwl_frame, text="")
+        self.enable_nwl_cb.place(anchor="w", relx=0.26, rely=1/10)
+
+        ctk.CTkLabel(self.nwl_frame, text="Near wall thickness").place(anchor="w", relx=0.51, rely=1/10)
+        self.nwl_first_entry = ctk.CTkEntry(self.nwl_frame)
+        self.nwl_first_entry.place(anchor="e", relwidth=0.24, relx=0.99, rely=1/10)
+
+        ctk.CTkLabel(self.nwl_frame, text="Total thickness").place(anchor="w", relx=0.01, rely=3/10)
+        self.nwl_distance_entry = ctk.CTkEntry(self.nwl_frame)
+        self.nwl_distance_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=3/10)
+
+        ctk.CTkLabel(self.nwl_frame, text="Last cell thickness").place(anchor="w", relx=0.51, rely=3/10)
+        self.nwl_last_entry = ctk.CTkEntry(self.nwl_frame)
+        self.nwl_last_entry.place(anchor="e", relwidth=0.24, relx=0.99, rely=3/10)
+
+        ctk.CTkLabel(self.nwl_frame, text="Number of Layers").place(anchor="w", relx=0.01, rely=5/10)
+        self.nwl_n_entry = ctk.CTkEntry(self.nwl_frame)
+        self.nwl_n_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=5/10)
+
+        ctk.CTkLabel(self.nwl_frame, text="Stretch Factor").place(anchor="w", relx=0.51, rely=5/10)
+        self.nwl_sf_entry = ctk.CTkEntry(self.nwl_frame)
+        self.nwl_sf_entry.place(anchor="e", relwidth=0.24, relx=0.99, rely=5/10)
+
         self.nwl_frame.grid(row=1, column=0, padx=4, pady=(0, 6), sticky="news")
 
         # Smoothing Frame
@@ -266,6 +290,7 @@ class TrimmedMesher(ctk.CTk):
         self.output_text.configure(state="disabled")
 
     def get_input(self):
+        self.input.__init__()
         self.input.curve = self.curve_entry.get()
         self.input.outputfile = self.output_file_entry.get()
         self.input.cell_size = self.cell_size_entry.get()
@@ -276,6 +301,12 @@ class TrimmedMesher(ctk.CTk):
         self.input.rotation_angle = self.rotation_angle_entry.get()
         self.input.rotation_center_x = self.rotation_center_x_entry.get()
         self.input.rotation_center_y = self.rotation_center_y_entry.get()
+        self.input.enable_nwl = self.enable_nwl_cb.get()
+        self.input.nwl_first = self.nwl_first_entry.get()
+        self.input.nwl_last = self.nwl_last_entry.get()
+        self.input.nwl_distance = self.nwl_distance_entry.get()
+        self.input.nwl_n = self.nwl_n_entry.get()
+        self.input.nwl_SF = self.nwl_sf_entry.get()
 
     def load_curve(self):
         self.input.curve = filedialog.askopenfilename(title="Load curve file", filetypes=(("CSV files", "*.csv"), ("all files", "*.*")))
@@ -379,7 +410,7 @@ class Input():
     def __init__(self):
         self.curve = "0"
         self.outputfile = "mesh.msh"
-        self.cell_size = "0.01"
+        self.cell_size = "0"
         self.coarsening_level_0 = "0"
         self.coarsening_level_1 = "0"
         self.coarsening_level_2 = "0"
@@ -390,21 +421,21 @@ class Input():
         self.coarsening_cells_3 = "0"
         self.fast_coarsening = "0"
         self.conformal_coarsening = "0"
-        self.rows = "256"
-        self.cols = "256"
+        self.rows = "0"
+        self.cols = "0"
         self.center_x = "0.0"
         self.center_y = "0.0"
         self.rotation_angle = "0.0"
         self.rotation_center_x = "0.0"
         self.rotation_center_y = "0.0"
         self.smoothing = "0"
-        self.smoothing_iterations = "20000"
-        self.enable_nwl = "1"
-        self.nwl_first = "0.0001"
+        self.smoothing_iterations = "0"
+        self.enable_nwl = "0"
+        self.nwl_first = "0.0"
         self.nwl_last = self.cell_size
         self.nwl_distance = "0.0"
         self.nwl_n = "0"
-        self.nwl_SF = "1.25"
+        self.nwl_SF = "0.0"
     
     def split(self):
         return [
