@@ -16,6 +16,8 @@
 
 int main(int argc, char *argv[]) {
 
+    setbuf(stdout, NULL);
+
     for (int i = 0; i < 70; i++) printf("-");
     printf("\n");
     for (int i = 0; i < 17; i++) printf(" ");
@@ -26,7 +28,7 @@ int main(int argc, char *argv[]) {
     clock_t global_start = clock();
     clock_t start = global_start;
 
-    Input input = get_input();
+    Input input = get_input(argc, argv);
 
     double cell_size = input.cell_size;
     int rows = input.rows;

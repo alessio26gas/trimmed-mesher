@@ -2,44 +2,86 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-Input get_input() {
+Input get_input(int argc, char *argv[]) {
+
+    Input input = {};
 
     char *curve = "curve.csv";
     char *outputfile = "mesh.msh";
 
     double cell_size = 0.01;
 
-    Input input = (Input){
+    int coarsening_levels[] = {0, 0, 0, 0};
+    int coarsening_cells[] = {0, 0, 0, 0};
+    bool fast_coarsening = false;
+    bool conformal_coarsening = false;
 
+    int rows = 256;
+    int cols = 256;
+
+    Point center = (Point){0.0, 0};
+
+    double rotation_angle = 0.0;
+    Point rotation_center = (Point){0.0, 0.0};
+
+    bool smoothing = true;
+    int smoothing_iterations = 3000;
+
+    bool enable_nwl = true;
+    NearWallLayer nwl = {
+        .first = 5.0e-5,
+        .last = cell_size,
+        .distance = 0,
+        .n = 0,
+        .SF = 1.25
+    };
+
+    if (argc == 29) {
+        curve = argv[1];
+        outputfile = argv[2];
+        cell_size = atof(argv[3]);
+        for (int i = 0; i < 4; i++) {
+            coarsening_levels[i] = atoi(argv[4 + i]);
+            coarsening_cells[i] = atoi(argv[8 + i]);
+        }
+        fast_coarsening = atoi(argv[12]);
+        conformal_coarsening = atoi(argv[13]);
+        rows = atoi(argv[14]);
+        cols = atoi(argv[15]);
+        center.x = atof(argv[16]);
+        center.y = atof(argv[17]);
+        rotation_angle = atof(argv[18]);
+        rotation_center.x = atof(argv[19]);
+        rotation_center.y = atof(argv[20]);
+        smoothing = atoi(argv[21]);
+        smoothing_iterations = atoi(argv[22]);
+        enable_nwl = atoi(argv[23]);
+        nwl.first = atof(argv[24]);
+        nwl.last = atof(argv[25]);
+        nwl.distance = atof(argv[26]);
+        nwl.n = atoi(argv[27]);
+        nwl.SF = atof(argv[28]);
+    }
+
+    input = (Input){
         .curve = curve,
-
         .cell_size = cell_size,
-
-        .coarsening_levels = {0, 0, 0, 0},
-        .coarsening_cells = {0, 0, 0, 0},
-        .fast_coarsening = false,
-        .conformal_coarsening = false,
-
-        .rows = 256,
-        .cols = 256,
-
-        .center = (Point){0, 0},
-
-        .rotation_angle = 0.0,
-        .rotation_center = (Point){0.0, 0.0},
-
-        .smoothing = true,
-        .smoothing_iterations = 1000,
-
-        .enable_nwl = true,
-        .nwl.first = 5.0e-5,
-        .nwl.last = cell_size,
-        .nwl.distance = 0,
-        .nwl.n = 0,
-        .nwl.SF = 1.3,
-
+        .fast_coarsening = fast_coarsening,
+        .conformal_coarsening = conformal_coarsening,
+        .rows = rows,
+        .cols = cols,
+        .center = center,
+        .rotation_angle = rotation_angle,
+        .rotation_center = rotation_center,
+        .smoothing = smoothing,
+        .smoothing_iterations = smoothing_iterations,
+        .enable_nwl = enable_nwl,
+        .nwl = nwl,
         .outputfile = outputfile
     };
+
+    memcpy(input.coarsening_levels, coarsening_levels, sizeof(coarsening_levels));
+    memcpy(input.coarsening_cells, coarsening_cells, sizeof(coarsening_cells));
 
     return input;
 }
