@@ -178,6 +178,40 @@ class TrimmedMesher(ctk.CTk):
         # Coarsening Frame
         self.coarsening_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
 
+        self.coarsening_cb = ctk.CTkCheckBox(self.coarsening_frame, text="Enable coarsening")
+        self.coarsening_cb.place(anchor="center", relx=0.5, rely=1/10)
+
+        self.fast_coarsening_cb = ctk.CTkCheckBox(self.coarsening_frame, text="Fast coarsening")
+        self.fast_coarsening_cb.place(anchor="center", relx=0.3, rely=3/10)
+
+        self.conformal_coarsening_cb = ctk.CTkCheckBox(self.coarsening_frame, text="Conformal coarsening")
+        self.conformal_coarsening_cb.place(anchor="center", relx=0.7, rely=3/10)
+    
+        ctk.CTkLabel(self.coarsening_frame, text="bottom").place(anchor="center", relx=0.43, rely=5/10)
+        ctk.CTkLabel(self.coarsening_frame, text="right").place(anchor="center", relx=0.55, rely=5/10)
+        ctk.CTkLabel(self.coarsening_frame, text="top").place(anchor="center", relx=0.67, rely=5/10)
+        ctk.CTkLabel(self.coarsening_frame, text="left").place(anchor="center", relx=0.79, rely=5/10)
+
+        ctk.CTkLabel(self.coarsening_frame, text="Coarsening levels").place(anchor="w", relx=0.15, rely=6.5/10)
+        self.coarsening_level_0_entry = ctk.CTkEntry(self.coarsening_frame)
+        self.coarsening_level_0_entry.place(anchor="e", relwidth=0.12, relx=0.49, rely=6.5/10)
+        self.coarsening_level_1_entry = ctk.CTkEntry(self.coarsening_frame)
+        self.coarsening_level_1_entry.place(anchor="e", relwidth=0.12, relx=0.61, rely=6.5/10)
+        self.coarsening_level_2_entry = ctk.CTkEntry(self.coarsening_frame)
+        self.coarsening_level_2_entry.place(anchor="e", relwidth=0.12, relx=0.73, rely=6.5/10)
+        self.coarsening_level_3_entry = ctk.CTkEntry(self.coarsening_frame)
+        self.coarsening_level_3_entry.place(anchor="e", relwidth=0.12, relx=0.85, rely=6.5/10)
+
+        ctk.CTkLabel(self.coarsening_frame, text="Coarsening cells").place(anchor="w", relx=0.15, rely=8.5/10)
+        self.coarsening_cells_0_entry = ctk.CTkEntry(self.coarsening_frame)
+        self.coarsening_cells_0_entry.place(anchor="e", relwidth=0.12, relx=0.49, rely=8.5/10)
+        self.coarsening_cells_1_entry = ctk.CTkEntry(self.coarsening_frame)
+        self.coarsening_cells_1_entry.place(anchor="e", relwidth=0.12, relx=0.61, rely=8.5/10)
+        self.coarsening_cells_2_entry = ctk.CTkEntry(self.coarsening_frame)
+        self.coarsening_cells_2_entry.place(anchor="e", relwidth=0.12, relx=0.73, rely=8.5/10)
+        self.coarsening_cells_3_entry = ctk.CTkEntry(self.coarsening_frame)
+        self.coarsening_cells_3_entry.place(anchor="e", relwidth=0.12, relx=0.85, rely=8.5/10)
+
         self.coarsening_frame.grid(row=1, column=0, padx=4, pady=(0, 6), sticky="news")
 
         # Main Frame Configuration
@@ -317,6 +351,17 @@ class TrimmedMesher(ctk.CTk):
         self.input.nwl_SF = self.nwl_sf_entry.get()
         self.input.smoothing = self.enable_smoothing_cb.get()
         self.input.smoothing_iterations = self.smoothing_iterations_entry.get()
+        if self.coarsening_cb.get():
+            self.input.fast_coarsening = self.fast_coarsening_cb.get()
+            self.input.conformal_coarsening = self.conformal_coarsening_cb.get()
+            self.coarsening_level_0 = self.coarsening_level_0_entry.get()
+            self.coarsening_level_1 = self.coarsening_level_1_entry.get()
+            self.coarsening_level_2 = self.coarsening_level_2_entry.get()
+            self.coarsening_level_3 = self.coarsening_level_3_entry.get()
+            self.coarsening_cells_0 = self.coarsening_cells_0_entry.get()
+            self.coarsening_cells_1 = self.coarsening_cells_1_entry.get()
+            self.coarsening_cells_2 = self.coarsening_cells_2_entry.get()
+            self.coarsening_cells_3 = self.coarsening_cells_3_entry.get()
 
     def load_curve(self):
         self.input.curve = filedialog.askopenfilename(title="Load curve file", filetypes=(("CSV files", "*.csv"), ("all files", "*.*")))
