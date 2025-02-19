@@ -12,6 +12,7 @@ copyright = "(C) 2025 Alessio Improta"
 class TrimmedMesher(ctk.CTk):
     def __init__(self, *args, **kwargs):
         ctk.set_appearance_mode("system")
+        ctk.set_default_color_theme("theme.json")
 
         super().__init__(*args, **kwargs)
         self.title("Trimmed Mesher")
