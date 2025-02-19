@@ -44,7 +44,7 @@ class TrimmedMesher(ctk.CTk):
         self.tabs_frame.grid_columnconfigure([0, 1, 2, 3], weight=1)
 
         self.on = ['gray99', 'gray12']
-        self.on_h = ["gray95","gray26"]
+        self.on_h = ['gray99', 'gray12']
         self.off = ["gray90","gray20"]
         self.off_h = ["gray85","gray30"]
 
@@ -136,9 +136,9 @@ class TrimmedMesher(ctk.CTk):
         # Near Wall Cells Frame
         self.nwl_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
 
-        ctk.CTkLabel(self.nwl_frame, text="Enable near wall layer").place(anchor="w", relx=0.01, rely=1/10)
+        ctk.CTkLabel(self.nwl_frame, text="Enable near wall layers").place(anchor="w", relx=0.01, rely=1/10)
         self.enable_nwl_cb = ctk.CTkCheckBox(self.nwl_frame, text="")
-        self.enable_nwl_cb.place(anchor="w", relx=0.26, rely=1/10)
+        self.enable_nwl_cb.place(anchor="w", relx=0.27, rely=1/10)
 
         ctk.CTkLabel(self.nwl_frame, text="Near wall thickness").place(anchor="w", relx=0.51, rely=1/10)
         self.nwl_first_entry = ctk.CTkEntry(self.nwl_frame)
@@ -167,7 +167,7 @@ class TrimmedMesher(ctk.CTk):
 
         ctk.CTkLabel(self.smoothing_frame, text="Enable smoothing").place(anchor="w", relx=0.01, rely=1/10)
         self.enable_smoothing_cb = ctk.CTkCheckBox(self.smoothing_frame, text="")
-        self.enable_smoothing_cb.place(anchor="w", relx=0.26, rely=1/10)
+        self.enable_smoothing_cb.place(anchor="w", relx=0.27, rely=1/10)
 
         ctk.CTkLabel(self.smoothing_frame, text="Maximum iterations").place(anchor="w", relx=0.01, rely=3/10)
         self.smoothing_iterations_entry = ctk.CTkEntry(self.smoothing_frame)
@@ -328,7 +328,7 @@ class TrimmedMesher(ctk.CTk):
     def append_output(self, text):
         self.output_text.configure(state="normal")
         self.output_text.insert("end", text)
-        self.output_text.yview_moveto(0.99)
+        self.output_text.yview_moveto(1.0)
         self.output_text.configure(state="disabled")
 
     def get_input(self):
@@ -343,25 +343,25 @@ class TrimmedMesher(ctk.CTk):
         self.input.rotation_angle = self.rotation_angle_entry.get()
         self.input.rotation_center_x = self.rotation_center_x_entry.get()
         self.input.rotation_center_y = self.rotation_center_y_entry.get()
-        self.input.enable_nwl = self.enable_nwl_cb.get()
+        self.input.enable_nwl = str(self.enable_nwl_cb.get())
         self.input.nwl_first = self.nwl_first_entry.get()
         self.input.nwl_last = self.nwl_last_entry.get()
         self.input.nwl_distance = self.nwl_distance_entry.get()
         self.input.nwl_n = self.nwl_n_entry.get()
         self.input.nwl_SF = self.nwl_sf_entry.get()
-        self.input.smoothing = self.enable_smoothing_cb.get()
+        self.input.smoothing = str(self.enable_smoothing_cb.get())
         self.input.smoothing_iterations = self.smoothing_iterations_entry.get()
         if self.coarsening_cb.get():
-            self.input.fast_coarsening = self.fast_coarsening_cb.get()
-            self.input.conformal_coarsening = self.conformal_coarsening_cb.get()
-            self.coarsening_level_0 = self.coarsening_level_0_entry.get()
-            self.coarsening_level_1 = self.coarsening_level_1_entry.get()
-            self.coarsening_level_2 = self.coarsening_level_2_entry.get()
-            self.coarsening_level_3 = self.coarsening_level_3_entry.get()
-            self.coarsening_cells_0 = self.coarsening_cells_0_entry.get()
-            self.coarsening_cells_1 = self.coarsening_cells_1_entry.get()
-            self.coarsening_cells_2 = self.coarsening_cells_2_entry.get()
-            self.coarsening_cells_3 = self.coarsening_cells_3_entry.get()
+            self.input.fast_coarsening = str(self.fast_coarsening_cb.get())
+            self.input.conformal_coarsening = str(self.conformal_coarsening_cb.get())
+            self.input.coarsening_level_0 = self.coarsening_level_0_entry.get()
+            self.input.coarsening_level_1 = self.coarsening_level_1_entry.get()
+            self.input.coarsening_level_2 = self.coarsening_level_2_entry.get()
+            self.input.coarsening_level_3 = self.coarsening_level_3_entry.get()
+            self.input.coarsening_cells_0 = self.coarsening_cells_0_entry.get()
+            self.input.coarsening_cells_1 = self.coarsening_cells_1_entry.get()
+            self.input.coarsening_cells_2 = self.coarsening_cells_2_entry.get()
+            self.input.coarsening_cells_3 = self.coarsening_cells_3_entry.get()
 
     def load_curve(self):
         self.input.curve = filedialog.askopenfilename(title="Load curve file", filetypes=(("CSV files", "*.csv"), ("all files", "*.*")))

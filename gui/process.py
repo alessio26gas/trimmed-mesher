@@ -1,5 +1,4 @@
 import subprocess
-import os
 import sys
 import threading
 from utils import resource_path
@@ -16,7 +15,7 @@ class ProcessHandler:
             return
 
         exe = "mesher.exe" if sys.platform == "win32" else "mesher"
-        command = [resource_path(exe)] + inputs   
+        command = [resource_path(exe)] + inputs
 
         try:
             self.process = subprocess.Popen(
