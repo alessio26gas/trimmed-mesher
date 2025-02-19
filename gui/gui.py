@@ -88,14 +88,47 @@ class TrimmedMesher(ctk.CTk):
         # General Frame
         self.general_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
 
-        self.curve_button = ctk.CTkButton(self.general_frame, text="Load curve", command=self.load_curve)
-        self.curve_button.place(anchor="center", relx=0.15, rely=0.1)
+        ctk.CTkLabel(self.general_frame, text="Output file path").place(anchor="w", relx=0.01, rely=1/10)
+        self.output_file_entry = ctk.CTkEntry(self.general_frame, corner_radius=0)
+        self.output_file_entry.place(anchor="center", relwidth=0.5, relx=0.5, rely=1/10)
+        ctk.CTkButton(
+            self.general_frame, text="Browse...", corner_radius=0, command=self.output_file
+        ).place(anchor="e", relwidth=0.24, relx=0.99, rely=1/10)
 
-        self.output_button = ctk.CTkButton(self.general_frame, text="Output file", command=self.output_file)
-        self.output_button.place(anchor="center", relx=0.15, rely=0.3)
+        ctk.CTkLabel(self.general_frame, text="Body curve path").place(anchor="w", relx=0.01, rely=3/10)
+        self.curve_entry = ctk.CTkEntry(self.general_frame, corner_radius=0)
+        self.curve_entry.place(anchor="center", relwidth=0.5, relx=0.5, rely=3/10)
+        ctk.CTkButton(
+            self.general_frame, text="Browse...", corner_radius=0, command=self.load_curve
+        ).place(anchor="e", relwidth=0.24, relx=0.99, rely=3/10)
 
-        self.cell_size_entry = ctk.CTkEntry(self.general_frame, placeholder_text="Cell size")
-        self.cell_size_entry.place(anchor="center", relx=0.15, rely=0.5)
+        ctk.CTkLabel(self.general_frame, text="Cell size").place(anchor="w", relx=0.01, rely=5/10)
+        self.cell_size_entry = ctk.CTkEntry(self.general_frame)
+        self.cell_size_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=5/10)
+
+        ctk.CTkLabel(self.general_frame, text="Rows").place(anchor="w", relx=0.01, rely=7/10)
+        self.rows_entry = ctk.CTkEntry(self.general_frame)
+        self.rows_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=7/10)
+
+        ctk.CTkLabel(self.general_frame, text="Columns").place(anchor="w", relx=0.01, rely=9/10)
+        self.cols_entry = ctk.CTkEntry(self.general_frame)
+        self.cols_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=9/10)
+
+        ctk.CTkLabel(self.general_frame, text="Center (X,Y)").place(anchor="w", relx=0.51, rely=5/10)
+        self.center_x_entry = ctk.CTkEntry(self.general_frame)
+        self.center_x_entry.place(anchor="e", relwidth=0.12, relx=0.87, rely=5/10)
+        self.center_y_entry = ctk.CTkEntry(self.general_frame)
+        self.center_y_entry.place(anchor="e", relwidth=0.12, relx=0.99, rely=5/10)
+
+        ctk.CTkLabel(self.general_frame, text="Rotation angle").place(anchor="w", relx=0.51, rely=7/10)
+        self.rotation_angle_entry = ctk.CTkEntry(self.general_frame)
+        self.rotation_angle_entry.place(anchor="e", relwidth=0.24, relx=0.99, rely=7/10)
+
+        ctk.CTkLabel(self.general_frame, text="Rotation center (X,Y)").place(anchor="w", relx=0.51, rely=9/10)
+        self.rotation_center_x_entry = ctk.CTkEntry(self.general_frame)
+        self.rotation_center_x_entry.place(anchor="e", relwidth=0.12, relx=0.87, rely=9/10)
+        self.rotation_center_y_entry = ctk.CTkEntry(self.general_frame)
+        self.rotation_center_y_entry.place(anchor="e", relwidth=0.12, relx=0.99, rely=9/10)
 
         self.general_frame.grid(row=1, column=0, padx=4, pady=(0, 6), sticky="news")
 
@@ -232,13 +265,28 @@ class TrimmedMesher(ctk.CTk):
         self.output_text.configure(state="disabled")
 
     def get_input(self):
+        self.input.curve = self.curve_entry.get()
+        self.input.outputfile = self.output_file_entry.get()
         self.input.cell_size = self.cell_size_entry.get()
+        self.input.rows = self.rows_entry.get()
+        self.input.cols = self.cols_entry.get()
+        self.input.center_x = self.center_x_entry.get()
+        self.input.center_y = self.center_y_entry.get()
+        self.input.rotation_angle = self.rotation_angle_entry.get()
+        self.input.rotation_center_x = self.rotation_center_x_entry.get()
+        self.input.rotation_center_y = self.rotation_center_y_entry.get()
 
     def load_curve(self):
         self.input.curve = filedialog.askopenfilename(title="Load curve file", filetypes=(("CSV files", "*.csv"), ("all files", "*.*")))
-    
+        self.curve_entry.delete("0", "end")
+        self.curve_entry.insert("0", self.input.curve)
+        self.curve_entry.xview_moveto(1.0)
+
     def output_file(self):
         self.input.outputfile = filedialog.asksaveasfilename(defaultextension=".msh")
+        self.output_file_entry.delete("0", "end")
+        self.output_file_entry.insert("0", self.input.outputfile)
+        self.output_file_entry.xview_moveto(1.0)
 
     def switch_tab(self, tab):
         self.general_button.configure(fg_color=self.off, hover_color=self.off_h)
@@ -348,7 +396,7 @@ class Input():
         self.rotation_angle = "0.0"
         self.rotation_center_x = "0.0"
         self.rotation_center_y = "0.0"
-        self.smoothing = "1"
+        self.smoothing = "0"
         self.smoothing_iterations = "20000"
         self.enable_nwl = "1"
         self.nwl_first = "0.0001"
