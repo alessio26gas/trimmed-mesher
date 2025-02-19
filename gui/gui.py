@@ -165,6 +165,14 @@ class TrimmedMesher(ctk.CTk):
         # Smoothing Frame
         self.smoothing_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
 
+        ctk.CTkLabel(self.smoothing_frame, text="Enable smoothing").place(anchor="w", relx=0.01, rely=1/10)
+        self.enable_smoothing_cb = ctk.CTkCheckBox(self.smoothing_frame, text="")
+        self.enable_smoothing_cb.place(anchor="w", relx=0.26, rely=1/10)
+
+        ctk.CTkLabel(self.smoothing_frame, text="Maximum iterations").place(anchor="w", relx=0.01, rely=3/10)
+        self.smoothing_iterations_entry = ctk.CTkEntry(self.smoothing_frame)
+        self.smoothing_iterations_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=3/10)
+
         self.smoothing_frame.grid(row=1, column=0, padx=4, pady=(0, 6), sticky="news")
 
         # Coarsening Frame
@@ -307,6 +315,8 @@ class TrimmedMesher(ctk.CTk):
         self.input.nwl_distance = self.nwl_distance_entry.get()
         self.input.nwl_n = self.nwl_n_entry.get()
         self.input.nwl_SF = self.nwl_sf_entry.get()
+        self.input.smoothing = self.enable_smoothing_cb.get()
+        self.input.smoothing_iterations = self.smoothing_iterations_entry.get()
 
     def load_curve(self):
         self.input.curve = filedialog.askopenfilename(title="Load curve file", filetypes=(("CSV files", "*.csv"), ("all files", "*.*")))
