@@ -17,8 +17,8 @@ class TrimmedMesher(ctk.CTk):
         self.title("Trimmed Mesher")
         self.resizable(True, True)
         self.geometry("540x300")
-        self.minsize(540, 350)
-        self.maxsize(640, 720)
+        self.minsize(540, 400)
+        self.maxsize(640, 800)
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(2, weight=1)
         self.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -35,24 +35,93 @@ class TrimmedMesher(ctk.CTk):
         self.info = None
 
         # Main Frame
-        self.main_frame = ctk.CTkFrame(self, height=200, border_width=1, corner_radius=0)
+        self.main_frame = ctk.CTkFrame(self, height=240, border_width=1, corner_radius=0)
+        self.main_frame.grid_columnconfigure(0, weight=1)
 
-        self.curve_button = ctk.CTkButton(self.main_frame, text="Load curve", command=self.load_curve)
-        self.curve_button.place(anchor="center", relx=0.5, rely=0.1)
+        # Tab Buttons
+        self.tabs_frame = ctk.CTkFrame(self.main_frame, height=36, border_width=1, corner_radius=0)
+        self.tabs_frame.grid_columnconfigure([0, 1, 2, 3], weight=1)
 
-        self.output_button = ctk.CTkButton(self.main_frame, text="Output file", command=self.output_file)
-        self.output_button.place(anchor="center", relx=0.5, rely=0.3)
+        self.on = ['gray99', 'gray12']
+        self.on_h = ["gray95","gray26"]
+        self.off = ["gray90","gray20"]
+        self.off_h = ["gray85","gray30"]
 
-        self.input_entry = ctk.CTkEntry(self.main_frame, placeholder_text="Input field")
-        self.input_entry.place(anchor="center", relx=0.5, rely=0.5)
+        self.general_button = ctk.CTkButton(
+            self.tabs_frame, text="General Settings",
+            command=lambda: self.switch_tab(0),
+            corner_radius=0,
+            border_width=0,
+            fg_color=self.on, hover_color=self.on_h
+        )
+        self.general_button.grid(row=0, column=0, padx=(1, 0), pady=(1, 0), sticky="news")
 
+        self.nwl_button = ctk.CTkButton(
+            self.tabs_frame, text="Near wall cells",
+            command=lambda: self.switch_tab(1),
+            corner_radius=0,
+            border_width=0,
+            fg_color=self.off, hover_color=self.off_h
+        )
+        self.nwl_button.grid(row=0, column=1, padx=0, pady=(1, 0), sticky="news")
+
+        self.smoothing_button = ctk.CTkButton(
+            self.tabs_frame, text="Smoothing",
+            command=lambda: self.switch_tab(2),
+            corner_radius=0,
+            border_width=0,
+            fg_color=self.off, hover_color=self.off_h
+        )
+        self.smoothing_button.grid(row=0, column=2, padx=0, pady=(1, 0), sticky="news")
+
+        self.coarsening_button = ctk.CTkButton(
+            self.tabs_frame, text="Coarsening",
+            command=lambda: self.switch_tab(3),
+            corner_radius=0,
+            border_width=0,
+            fg_color=self.off, hover_color=self.off_h
+        )
+        self.coarsening_button.grid(row=0, column=3, padx=(0, 1), pady=(1, 0), sticky="news")
+
+        self.tabs_frame.grid(row=0, column=0, padx=4, pady=(4, 0), sticky="news")
+
+        # General Frame
+        self.general_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
+
+        self.curve_button = ctk.CTkButton(self.general_frame, text="Load curve", command=self.load_curve)
+        self.curve_button.place(anchor="center", relx=0.15, rely=0.1)
+
+        self.output_button = ctk.CTkButton(self.general_frame, text="Output file", command=self.output_file)
+        self.output_button.place(anchor="center", relx=0.15, rely=0.3)
+
+        self.cell_size_entry = ctk.CTkEntry(self.general_frame, placeholder_text="Cell size")
+        self.cell_size_entry.place(anchor="center", relx=0.15, rely=0.5)
+
+        self.general_frame.grid(row=1, column=0, padx=4, pady=(0, 6), sticky="news")
+
+        # Near Wall Cells Frame
+        self.nwl_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
+
+        self.nwl_frame.grid(row=1, column=0, padx=4, pady=(0, 6), sticky="news")
+
+        # Smoothing Frame
+        self.smoothing_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
+
+        self.smoothing_frame.grid(row=1, column=0, padx=4, pady=(0, 6), sticky="news")
+
+        # Coarsening Frame
+        self.coarsening_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
+
+        self.coarsening_frame.grid(row=1, column=0, padx=4, pady=(0, 6), sticky="news")
+
+        # Main Frame Configuration
+        self.general_frame.tkraise()
         self.main_frame.grid(row=0, column=0, columnspan=2, padx=4, pady=4, sticky="ew")
 
         # Control Center
         self.control_center = ctk.CTkFrame(self, height=32, border_width=1, corner_radius=0)
-        self.control_center.grid_columnconfigure(0, weight=1)
+        self.control_center.grid_columnconfigure([0, 2], weight=1)
         self.control_center.grid_columnconfigure(1, weight=0)
-        self.control_center.grid_columnconfigure(2, weight=1)
 
         if self._get_appearance_mode() == "light":
             start_image = ctk.CTkImage(Image.open(resource_path("images/start.png")), size=(32, 32))
@@ -64,6 +133,7 @@ class TrimmedMesher(ctk.CTk):
             command=self.start,
             width=25,
             corner_radius=5,
+            border_width=0,
             text="",
             image=start_image,
             fg_color="transparent",
@@ -82,6 +152,7 @@ class TrimmedMesher(ctk.CTk):
             command=self.stop,
             width=25,
             corner_radius=5,
+            border_width=0,
             text="",
             image=stop_image,
             fg_color="transparent",
@@ -100,6 +171,7 @@ class TrimmedMesher(ctk.CTk):
             command=self.toggle_appearance_mode,
             width=25,
             corner_radius=5,
+            border_width=0,
             text="",
             image=appearance_image,
             fg_color="transparent",
@@ -118,6 +190,7 @@ class TrimmedMesher(ctk.CTk):
             command=self.get_info,
             width=25,
             corner_radius=5,
+            border_width=0,
             text="",
             image=info_image,
             fg_color="transparent",
@@ -141,7 +214,7 @@ class TrimmedMesher(ctk.CTk):
             border_width=2,
             font=get_font(),
         )
-        self.output_text.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+        self.output_text.grid(row=0, column=0, padx=0, pady=0, sticky="nsew")
 
         self.command_window.grid(row=2, column=0, columnspan=2, padx=4, pady=4, sticky="nsew")
 
@@ -159,13 +232,32 @@ class TrimmedMesher(ctk.CTk):
         self.output_text.configure(state="disabled")
 
     def get_input(self):
-        self.input.cell_size = self.input_entry.get()
+        self.input.cell_size = self.cell_size_entry.get()
 
     def load_curve(self):
         self.input.curve = filedialog.askopenfilename(title="Load curve file", filetypes=(("CSV files", "*.csv"), ("all files", "*.*")))
     
     def output_file(self):
         self.input.outputfile = filedialog.asksaveasfilename(defaultextension=".msh")
+
+    def switch_tab(self, tab):
+        self.general_button.configure(fg_color=self.off, hover_color=self.off_h)
+        self.nwl_button.configure(fg_color=self.off, hover_color=self.off_h)
+        self.smoothing_button.configure(fg_color=self.off, hover_color=self.off_h)
+        self.coarsening_button.configure(fg_color=self.off, hover_color=self.off_h)
+        match tab:
+            case 0:
+                self.general_frame.tkraise()
+                self.general_button.configure(fg_color=self.on, hover_color=self.on_h)
+            case 1:
+                self.nwl_frame.tkraise()
+                self.nwl_button.configure(fg_color=self.on, hover_color=self.on_h)
+            case 2:
+                self.smoothing_frame.tkraise()
+                self.smoothing_button.configure(fg_color=self.on, hover_color=self.on_h)
+            case 3:
+                self.coarsening_frame.tkraise()
+                self.coarsening_button.configure(fg_color=self.on, hover_color=self.on_h)
 
     def get_info(self):
         if self.info is None or not self.info.winfo_exists():
@@ -181,9 +273,9 @@ class TrimmedMesher(ctk.CTk):
             )
 
             self.infoframe = ctk.CTkFrame(
-                self.info, border_width=3, corner_radius=0, width=260, height=250,
+                self.info, border_width=2, corner_radius=0, width=260, height=250,
             )
-            self.infoframe.grid(column=0, row=0)
+            self.infoframe.grid(column=0, row=0, padx=2, pady=2)
 
             icon = ctk.CTkImage(Image.open(resource_path("images/icon.png")), size=(128, 128))
             ctk.CTkLabel(
