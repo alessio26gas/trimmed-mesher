@@ -198,8 +198,8 @@ int main(int argc, char *argv[]) {
 
             switch (ex) {
                 case 3:
-                    int n5;
                     pentagons = true;
+                    int n5;
                     int flag = penta_vertices(&n1, &n2, &n3, &n4, &n5, offset, n_offset, &nodes, &n_nodes);
                     elements[n_elements++] = (Element){element_id++, 4, 5, {n1, n2, n3, n4, n5}, flag};
                     break;
