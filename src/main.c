@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
     int cols = input.cols;
 
     if (rows < EPSILON || cols < EPSILON || cell_size < EPSILON) {
-        printf("Unvalid input values.\n");
+        printf("Invalid input parameters.\n");
         return -1;
     }
 
@@ -223,7 +223,7 @@ int main(int argc, char *argv[]) {
         printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }
 
-    if (input.smoothing) {
+    if (input.smoothing && input.smoothing_iterations > 0) {
         printf("Executing smoothing algorithm...\n");
         start = end;
         for (int k = 1; k <= input.smoothing_iterations; k++) {
