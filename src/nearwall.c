@@ -312,16 +312,23 @@ void extrude_near_wall_cells(
     for (int i = 0; i < n_offset_nodes; i++) {
         c[i] = 0;
     }
+    Point pBold[n_offset_nodes];
     bool singularities = true;
 
-    while (singularities) {
+    int iter = 0;
+    while (singularities && iter < nwl.surf_max_iter) {
+        iter++;
         singularities = false;
         for (int i = 0; i < n_offset_nodes; i++) {
             int j = (i + 1) % n_offset_nodes;
             int h = (n_offset_nodes + i - 1) % n_offset_nodes;
             r[i] = 0; l[i] = 0;
-            if (points_are_equal(pB[i], pB[j])) r[i] = 1;
-            if (points_are_equal(pB[i], pB[h])) l[i] = 1;
+            if (points_are_close(pB[i], pB[j], nwl.min_surf_distance + EPSILON)) r[i] = 1;
+            if (points_are_close(pB[i], pB[h], nwl.min_surf_distance + EPSILON)) l[i] = 1;
+        }
+
+        for (int i = 0; i < n_offset_nodes; i++) {
+            pBold[i] = pB[i];
         }
 
         for (int i = 0; i < n_offset_nodes; i++) {
@@ -330,23 +337,25 @@ void extrude_near_wall_cells(
                 c[i] = 1;
             }
             if (l[i] == 1 && r[i] == 0) {
+                singularities = true;
                 int j = (i + 1) % n_offset_nodes;
                 if (c[i] == 1) {
-                    pB[i].x = 0.5 * pB[i].x + 0.5 * pB[j].x;
-                    pB[i].y = 0.5 * pB[i].y + 0.5 * pB[j].y;                   
+                    pB[i].x = 0.5 * pBold[i].x + 0.5 * pBold[j].x;
+                    pB[i].y = 0.5 * pBold[i].y + 0.5 * pBold[j].y;                   
                 } else {
-                    pB[i].x = 0.67 * pB[i].x + 0.33 * pB[j].x;
-                    pB[i].y = 0.67 * pB[i].y + 0.33 * pB[j].y;
+                    pB[i].x = 2.0 * pBold[i].x / 3.0 + pBold[j].x / 3.0;
+                    pB[i].y = 2.0 * pBold[i].y / 3.0 + pBold[j].y / 3.0;
                 }
             }
             if (l[i] == 0 && r[i] == 1) {
+                singularities = true;
                 int h = (n_offset_nodes + i - 1) % n_offset_nodes;
                 if (c[i] == 1) {
-                    pB[i].x = 0.5 * pB[i].x + 0.5 * pB[h].x;
-                    pB[i].y = 0.5 * pB[i].y + 0.5 * pB[h].y;    
+                    pB[i].x = 0.5 * pBold[i].x + 0.5 * pBold[h].x;
+                    pB[i].y = 0.5 * pBold[i].y + 0.5 * pBold[h].y;    
                 } else {
-                    pB[i].x = 0.67 * pB[i].x + 0.33 * pB[h].x;
-                    pB[i].y = 0.67 * pB[i].y + 0.33 * pB[h].y;    
+                    pB[i].x = 2.0 * pBold[i].x / 3.0 + pBold[h].x / 3.0;
+                    pB[i].y = 2.0 * pBold[i].y / 3.0 + pBold[h].y / 3.0;    
                 }
             }
         }
