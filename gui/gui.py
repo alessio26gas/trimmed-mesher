@@ -136,9 +136,8 @@ class TrimmedMesher(ctk.CTk):
         # Near Wall Cells Frame
         self.nwl_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
 
-        ctk.CTkLabel(self.nwl_frame, text="Enable near wall layers").place(anchor="w", relx=0.01, rely=1/10)
-        self.enable_nwl_cb = ctk.CTkCheckBox(self.nwl_frame, text="")
-        self.enable_nwl_cb.place(anchor="w", relx=0.27, rely=1/10)
+        self.enable_nwl_cb = ctk.CTkCheckBox(self.nwl_frame, text="Enable near wall layers")
+        self.enable_nwl_cb.place(anchor="w", relx=0.01, rely=1/10)
 
         ctk.CTkLabel(self.nwl_frame, text="Near wall thickness").place(anchor="w", relx=0.51, rely=1/10)
         self.nwl_first_entry = ctk.CTkEntry(self.nwl_frame)
@@ -165,13 +164,23 @@ class TrimmedMesher(ctk.CTk):
         # Smoothing Frame
         self.smoothing_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
 
-        ctk.CTkLabel(self.smoothing_frame, text="Enable smoothing").place(anchor="w", relx=0.01, rely=1/10)
-        self.enable_smoothing_cb = ctk.CTkCheckBox(self.smoothing_frame, text="")
-        self.enable_smoothing_cb.place(anchor="w", relx=0.27, rely=1/10)
+        self.enable_smoothing_cb = ctk.CTkCheckBox(self.smoothing_frame, text="Enable smoothing")
+        self.enable_smoothing_cb.place(anchor="w", relx=0.01, rely=1/10)
 
         ctk.CTkLabel(self.smoothing_frame, text="Maximum iterations").place(anchor="w", relx=0.01, rely=3/10)
         self.smoothing_iterations_entry = ctk.CTkEntry(self.smoothing_frame)
         self.smoothing_iterations_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=3/10)
+
+        self.enable_surf_smoothing_cb = ctk.CTkCheckBox(self.smoothing_frame, text="Enable surface points smoothing")
+        self.enable_surf_smoothing_cb.place(anchor="w", relx=0.01, rely=5/10)
+
+        ctk.CTkLabel(self.smoothing_frame, text="Minimum distance").place(anchor="w", relx=0.01, rely=7/10)
+        self.nwl_min_distance_entry = ctk.CTkEntry(self.smoothing_frame)
+        self.nwl_min_distance_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=7/10)
+
+        ctk.CTkLabel(self.smoothing_frame, text="Maximum iterations").place(anchor="w", relx=0.01, rely=9/10)
+        self.nwl_surf_max_iter_entry = ctk.CTkEntry(self.smoothing_frame)
+        self.nwl_surf_max_iter_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=9/10)
 
         self.smoothing_frame.grid(row=1, column=0, padx=4, pady=(0, 6), sticky="news")
 
@@ -349,6 +358,9 @@ class TrimmedMesher(ctk.CTk):
         self.input.nwl_distance = self.nwl_distance_entry.get()
         self.input.nwl_n = self.nwl_n_entry.get()
         self.input.nwl_SF = self.nwl_sf_entry.get()
+        if self.enable_surf_smoothing_cb.get():
+            self.input.nwl_min_surf_distance = self.nwl_min_distance_entry.get()
+            self.input.nwl_surf_max_iter = self.nwl_surf_max_iter_entry.get()
         self.input.smoothing = str(self.enable_smoothing_cb.get())
         self.input.smoothing_iterations = self.smoothing_iterations_entry.get()
         if self.coarsening_cb.get():
@@ -491,6 +503,8 @@ class Input():
         self.nwl_distance = "0.0"
         self.nwl_n = "0"
         self.nwl_SF = "0.0"
+        self.nwl_min_surf_distance = "0.0"
+        self.nwl_surf_max_iter = 1000
     
     def split(self):
         return [
@@ -521,7 +535,9 @@ class Input():
             self.nwl_last,
             self.nwl_distance,
             self.nwl_n,
-            self.nwl_SF
+            self.nwl_SF,
+            self.nwl_min_surf_distance,
+            self.nwl_surf_max_iter,
         ]
 
 
