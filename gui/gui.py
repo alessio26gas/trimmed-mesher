@@ -89,31 +89,31 @@ class TrimmedMesher(ctk.CTk):
         # General Frame
         self.general_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
 
-        ctk.CTkLabel(self.general_frame, text="Output file path").place(anchor="w", relx=0.01, rely=1/10)
+        ctk.CTkLabel(self.general_frame, text="Output file path").place(anchor="w", relx=0.01, rely=1.2/10)
         self.output_file_entry = ctk.CTkEntry(self.general_frame, corner_radius=0)
-        self.output_file_entry.place(anchor="center", relwidth=0.5, relx=0.5, rely=1/10)
+        self.output_file_entry.place(anchor="center", relwidth=0.5, relx=0.5, rely=1.2/10)
         ctk.CTkButton(
             self.general_frame, text="Browse...", corner_radius=0, command=self.output_file
-        ).place(anchor="e", relwidth=0.24, relx=0.99, rely=1/10)
+        ).place(anchor="e", relwidth=0.24, relx=0.99, rely=1.2/10)
 
-        ctk.CTkLabel(self.general_frame, text="Body curve path").place(anchor="w", relx=0.01, rely=3/10)
+        ctk.CTkLabel(self.general_frame, text="Body curve path").place(anchor="w", relx=0.01, rely=3.1/10)
         self.curve_entry = ctk.CTkEntry(self.general_frame, corner_radius=0)
-        self.curve_entry.place(anchor="center", relwidth=0.5, relx=0.5, rely=3/10)
+        self.curve_entry.place(anchor="center", relwidth=0.5, relx=0.5, rely=3.1/10)
         ctk.CTkButton(
             self.general_frame, text="Browse...", corner_radius=0, command=self.load_curve
-        ).place(anchor="e", relwidth=0.24, relx=0.99, rely=3/10)
+        ).place(anchor="e", relwidth=0.24, relx=0.99, rely=3.1/10)
 
         ctk.CTkLabel(self.general_frame, text="Cell size").place(anchor="w", relx=0.01, rely=5/10)
         self.cell_size_entry = ctk.CTkEntry(self.general_frame)
         self.cell_size_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=5/10)
 
-        ctk.CTkLabel(self.general_frame, text="Rows").place(anchor="w", relx=0.01, rely=7/10)
+        ctk.CTkLabel(self.general_frame, text="Rows").place(anchor="w", relx=0.01, rely=6.9/10)
         self.rows_entry = ctk.CTkEntry(self.general_frame)
-        self.rows_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=7/10)
+        self.rows_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=6.9/10)
 
-        ctk.CTkLabel(self.general_frame, text="Columns").place(anchor="w", relx=0.01, rely=9/10)
+        ctk.CTkLabel(self.general_frame, text="Columns").place(anchor="w", relx=0.01, rely=8.8/10)
         self.cols_entry = ctk.CTkEntry(self.general_frame)
-        self.cols_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=9/10)
+        self.cols_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=8.8/10)
 
         ctk.CTkLabel(self.general_frame, text="Center (X,Y)").place(anchor="w", relx=0.51, rely=5/10)
         self.center_x_entry = ctk.CTkEntry(self.general_frame)
@@ -121,15 +121,15 @@ class TrimmedMesher(ctk.CTk):
         self.center_y_entry = ctk.CTkEntry(self.general_frame)
         self.center_y_entry.place(anchor="e", relwidth=0.12, relx=0.99, rely=5/10)
 
-        ctk.CTkLabel(self.general_frame, text="Rotation angle").place(anchor="w", relx=0.51, rely=7/10)
+        ctk.CTkLabel(self.general_frame, text="Rotation angle").place(anchor="w", relx=0.51, rely=6.9/10)
         self.rotation_angle_entry = ctk.CTkEntry(self.general_frame)
-        self.rotation_angle_entry.place(anchor="e", relwidth=0.24, relx=0.99, rely=7/10)
+        self.rotation_angle_entry.place(anchor="e", relwidth=0.24, relx=0.99, rely=6.9/10)
 
-        ctk.CTkLabel(self.general_frame, text="Rotation center (X,Y)").place(anchor="w", relx=0.51, rely=9/10)
+        ctk.CTkLabel(self.general_frame, text="Rotation center (X,Y)").place(anchor="w", relx=0.51, rely=8.8/10)
         self.rotation_center_x_entry = ctk.CTkEntry(self.general_frame)
-        self.rotation_center_x_entry.place(anchor="e", relwidth=0.12, relx=0.87, rely=9/10)
+        self.rotation_center_x_entry.place(anchor="e", relwidth=0.12, relx=0.87, rely=8.8/10)
         self.rotation_center_y_entry = ctk.CTkEntry(self.general_frame)
-        self.rotation_center_y_entry.place(anchor="e", relwidth=0.12, relx=0.99, rely=9/10)
+        self.rotation_center_y_entry.place(anchor="e", relwidth=0.12, relx=0.99, rely=8.8/10)
 
         self.general_frame.grid(row=1, column=0, padx=4, pady=(0, 6), sticky="news")
 
@@ -137,19 +137,19 @@ class TrimmedMesher(ctk.CTk):
         self.nwl_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
 
         self.enable_nwl_cb = ctk.CTkCheckBox(self.nwl_frame, text="Enable near wall layers")
-        self.enable_nwl_cb.place(anchor="w", relx=0.01, rely=1/10)
+        self.enable_nwl_cb.place(anchor="w", relx=0.01, rely=1.2/10)
 
-        ctk.CTkLabel(self.nwl_frame, text="Near wall thickness").place(anchor="w", relx=0.51, rely=1/10)
+        ctk.CTkLabel(self.nwl_frame, text="Near wall thickness").place(anchor="w", relx=0.51, rely=1.2/10)
         self.nwl_first_entry = ctk.CTkEntry(self.nwl_frame)
-        self.nwl_first_entry.place(anchor="e", relwidth=0.24, relx=0.99, rely=1/10)
+        self.nwl_first_entry.place(anchor="e", relwidth=0.24, relx=0.99, rely=1.2/10)
 
-        ctk.CTkLabel(self.nwl_frame, text="Total thickness").place(anchor="w", relx=0.01, rely=3/10)
+        ctk.CTkLabel(self.nwl_frame, text="Total thickness").place(anchor="w", relx=0.01, rely=3.1/10)
         self.nwl_distance_entry = ctk.CTkEntry(self.nwl_frame)
-        self.nwl_distance_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=3/10)
+        self.nwl_distance_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=3.1/10)
 
-        ctk.CTkLabel(self.nwl_frame, text="Last cell thickness").place(anchor="w", relx=0.51, rely=3/10)
+        ctk.CTkLabel(self.nwl_frame, text="Last cell thickness").place(anchor="w", relx=0.51, rely=3.1/10)
         self.nwl_last_entry = ctk.CTkEntry(self.nwl_frame)
-        self.nwl_last_entry.place(anchor="e", relwidth=0.24, relx=0.99, rely=3/10)
+        self.nwl_last_entry.place(anchor="e", relwidth=0.24, relx=0.99, rely=3.1/10)
 
         ctk.CTkLabel(self.nwl_frame, text="Number of Layers").place(anchor="w", relx=0.01, rely=5/10)
         self.nwl_n_entry = ctk.CTkEntry(self.nwl_frame)
@@ -165,22 +165,22 @@ class TrimmedMesher(ctk.CTk):
         self.smoothing_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
 
         self.enable_smoothing_cb = ctk.CTkCheckBox(self.smoothing_frame, text="Enable smoothing")
-        self.enable_smoothing_cb.place(anchor="w", relx=0.01, rely=1/10)
+        self.enable_smoothing_cb.place(anchor="w", relx=0.01, rely=1.2/10)
 
-        ctk.CTkLabel(self.smoothing_frame, text="Maximum iterations").place(anchor="w", relx=0.01, rely=3/10)
+        ctk.CTkLabel(self.smoothing_frame, text="Maximum iterations").place(anchor="w", relx=0.01, rely=3.1/10)
         self.smoothing_iterations_entry = ctk.CTkEntry(self.smoothing_frame)
-        self.smoothing_iterations_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=3/10)
+        self.smoothing_iterations_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=3.1/10)
 
         self.enable_surf_smoothing_cb = ctk.CTkCheckBox(self.smoothing_frame, text="Enable surface points smoothing")
         self.enable_surf_smoothing_cb.place(anchor="w", relx=0.01, rely=5/10)
 
-        ctk.CTkLabel(self.smoothing_frame, text="Minimum distance").place(anchor="w", relx=0.01, rely=7/10)
+        ctk.CTkLabel(self.smoothing_frame, text="Minimum distance").place(anchor="w", relx=0.01, rely=6.9/10)
         self.nwl_min_distance_entry = ctk.CTkEntry(self.smoothing_frame)
-        self.nwl_min_distance_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=7/10)
+        self.nwl_min_distance_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=6.9/10)
 
-        ctk.CTkLabel(self.smoothing_frame, text="Maximum iterations").place(anchor="w", relx=0.01, rely=9/10)
+        ctk.CTkLabel(self.smoothing_frame, text="Maximum iterations").place(anchor="w", relx=0.01, rely=8.8/10)
         self.nwl_surf_max_iter_entry = ctk.CTkEntry(self.smoothing_frame)
-        self.nwl_surf_max_iter_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=9/10)
+        self.nwl_surf_max_iter_entry.place(anchor="e", relwidth=0.24, relx=0.49, rely=8.8/10)
 
         self.smoothing_frame.grid(row=1, column=0, padx=4, pady=(0, 6), sticky="news")
 
@@ -188,13 +188,13 @@ class TrimmedMesher(ctk.CTk):
         self.coarsening_frame = ctk.CTkFrame(self.main_frame, height=200, border_width=1, corner_radius=0)
 
         self.coarsening_cb = ctk.CTkCheckBox(self.coarsening_frame, text="Enable coarsening")
-        self.coarsening_cb.place(anchor="center", relx=0.5, rely=1/10)
+        self.coarsening_cb.place(anchor="center", relx=0.5, rely=1.2/10)
 
         self.fast_coarsening_cb = ctk.CTkCheckBox(self.coarsening_frame, text="Fast coarsening")
-        self.fast_coarsening_cb.place(anchor="center", relx=0.3, rely=3/10)
+        self.fast_coarsening_cb.place(anchor="center", relx=0.3, rely=3.1/10)
 
         self.conformal_coarsening_cb = ctk.CTkCheckBox(self.coarsening_frame, text="Conformal coarsening")
-        self.conformal_coarsening_cb.place(anchor="center", relx=0.7, rely=3/10)
+        self.conformal_coarsening_cb.place(anchor="center", relx=0.7, rely=3.1/10)
     
         ctk.CTkLabel(self.coarsening_frame, text="bottom").place(anchor="center", relx=0.43, rely=5/10)
         ctk.CTkLabel(self.coarsening_frame, text="right").place(anchor="center", relx=0.55, rely=5/10)
@@ -504,7 +504,7 @@ class Input():
         self.nwl_n = "0"
         self.nwl_SF = "0.0"
         self.nwl_min_surf_distance = "0.0"
-        self.nwl_surf_max_iter = 1000
+        self.nwl_surf_max_iter = "1000"
     
     def split(self):
         return [
