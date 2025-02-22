@@ -1,5 +1,8 @@
 import customtkinter as ctk
 import tkinter as tk
+import subprocess
+import shutil
+import os
 from tkinter import messagebox, filedialog
 from process import ProcessHandler
 from PIL import Image
@@ -232,6 +235,34 @@ class TrimmedMesher(ctk.CTk):
         self.control_center.grid_columnconfigure([0, 2], weight=1)
         self.control_center.grid_columnconfigure(1, weight=0)
 
+        self.gmsh_installed = is_gmsh_installed()
+        start_column = 0
+        start_padx = (0, 10)
+
+        if self.gmsh_installed:
+            start_column = 1
+            start_padx = (0, 0)
+            self.gmsh = None
+
+            if self._get_appearance_mode() == "light":
+                eye_image = ctk.CTkImage(Image.open(resource_path("images/eye.png")), size=(32, 32))
+            else:
+                eye_image = ctk.CTkImage(Image.open(resource_path("images/eye_dark.png")), size=(32, 32))
+
+            self.view_button = ctk.CTkButton(
+                self.control_center, 
+                command=self.view,
+                width=25,
+                corner_radius=5,
+                border_width=0,
+                text="",
+                image=eye_image,
+                fg_color="transparent",
+                text_color=["gray10", "gray95"],
+                hover_color=["gray95", "gray10"]
+            )
+            self.view_button.grid(row=0, column=0, sticky="e", padx=(0, 10), pady=4)
+
         if self._get_appearance_mode() == "light":
             start_image = ctk.CTkImage(Image.open(resource_path("images/start.png")), size=(32, 32))
         else:
@@ -249,7 +280,7 @@ class TrimmedMesher(ctk.CTk):
             text_color=["gray10", "gray95"],
             hover_color=["gray95", "gray10"]
         )
-        self.start_button.grid(row=0, column=0, sticky="e", padx=(0, 10), pady=4)
+        self.start_button.grid(row=0, column=start_column, sticky="e", padx=start_padx, pady=4)
 
         if self._get_appearance_mode() == "light":
             stop_image = ctk.CTkImage(Image.open(resource_path("images/stop.png")), size=(32, 32))
@@ -333,6 +364,15 @@ class TrimmedMesher(ctk.CTk):
 
     def stop(self):
         self.process_handler.stop_process()
+
+    def view(self):
+        if os.path.exists(self.input.outputfile):
+            if self.gmsh and self.gmsh.poll() is None:
+                self.gmsh.terminate()
+
+            self.gmsh = subprocess.Popen(["gmsh", self.input.outputfile], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        else:
+            self.append_output("Output mesh file does not exist.\n")
 
     def append_output(self, text):
         self.output_text.configure(state="normal")
@@ -458,12 +498,17 @@ class TrimmedMesher(ctk.CTk):
             self.info_button.configure(image=ctk.CTkImage(Image.open(resource_path("images/info.png")), size=(16, 16)))
             self.start_button.configure(image=ctk.CTkImage(Image.open(resource_path("images/start.png")), size=(32, 32)))
             self.stop_button.configure(image=ctk.CTkImage(Image.open(resource_path("images/stop.png")), size=(32, 32)))
+            if self.gmsh_installed:
+                self.view_button.configure(image=ctk.CTkImage(Image.open(resource_path("images/eye.png")), size=(32, 32)))
+
         else:
             new_mode = "dark"
             self.appearance_button.configure(image=ctk.CTkImage(Image.open(resource_path("images/sun.png")), size=(20, 20)))
             self.info_button.configure(image=ctk.CTkImage(Image.open(resource_path("images/info_dark.png")), size=(16, 16)))
             self.start_button.configure(image=ctk.CTkImage(Image.open(resource_path("images/start_dark.png")), size=(32, 32)))
             self.stop_button.configure(image=ctk.CTkImage(Image.open(resource_path("images/stop_dark.png")), size=(32, 32)))
+            if self.gmsh_installed:
+                self.view_button.configure(image=ctk.CTkImage(Image.open(resource_path("images/eye_dark.png")), size=(32, 32)))
         ctk.set_appearance_mode(new_mode)
 
     def on_closing(self):
@@ -539,6 +584,17 @@ class Input():
             self.nwl_min_surf_distance,
             self.nwl_surf_max_iter,
         ]
+
+
+def is_gmsh_installed():
+    if shutil.which("gmsh") is None:
+        return False
+
+    try:
+        subprocess.run(["gmsh", "--version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        return True
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        return False
 
 
 if __name__ == "__main__":
