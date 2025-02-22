@@ -3,7 +3,7 @@
 
 This repository contains a **C implementation** of a **trimmed mesher** designed for **Computational Fluid Dynamics (CFD)** simulations. The mesher generates a **cartesian 2D conformal grid** composed of square cells and adapts it to incorporate an **embedded closed curve**, representing an obstacle within the flow domain.
 
-In addition to the core meshing algorithms, this project includes a **Python-based GUI** built with **CustomTkinter**, which provides an easy-to-use interface for users to interact with the mesher. Through the GUI, users can provide input curves, control mesh generation parameters, and visualize real-time simulation output. The GUI also integrates with the C meshing engine, enabling seamless interaction without the need for command-line interface (CLI) knowledge.
+In addition to the core meshing algorithms, this project includes a **Python-based GUI** built with **CustomTkinter**, which provides an easy-to-use interface for users to interact with the mesher, without the need for command-line interface (CLI) knowledge.
 
 <p align="center">
   <img src="docs/images/gui.png" />
