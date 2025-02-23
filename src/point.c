@@ -3,10 +3,19 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 
 #define EPSILON 1e-12
 
 int load_body(const char *filename, Point **body, int *n_points) {
+
+    if (!strcmp(filename, "")) {
+        *n_points = 0;
+        return 0;
+    }
+
+    printf("Loading curve...");
+
     FILE *file = fopen(filename, "r");
     if (!file) {
         perror("An error has occured while opening the file");

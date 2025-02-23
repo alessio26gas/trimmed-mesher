@@ -42,7 +42,6 @@ int main(int argc, char *argv[]) {
     double X0 = - cell_size * cols / 2 + input.center.x;
     double Y0 = - cell_size * rows / 2 + input.center.y;
 
-    printf("Loading curve...");
     Point *body;
     int n_body;
     if (load_body(input.curve, &body, &n_body) != 0) {
@@ -50,7 +49,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
     clock_t end = clock();
-    printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
+    if (n_body > 0) printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
     double AoA = input.rotation_angle / 180 * PI;
     double xc = input.rotation_center.x;
@@ -294,7 +293,7 @@ int main(int argc, char *argv[]) {
     free(nodes);
     free(elements);
     free(boundaries);
-    free(body);
+    if (n_body > 0) free(body);
     if (enable_nwl) free(offset);
 
     for (int i = 0; i < 70; i++) printf("-");
