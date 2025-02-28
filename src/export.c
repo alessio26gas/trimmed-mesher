@@ -16,7 +16,7 @@ void write_mesh_file(const char *filename, Node *nodes, int n_nodes, Element *el
     fprintf(file, "$Nodes\n");
     fprintf(file, "%d\n", n_nodes);
     for (int i = 0; i < n_nodes; i++) {
-        fprintf(file, "%d %lf %lf 0.0\n", nodes[i].id, nodes[i].position.x, nodes[i].position.y);
+        fprintf(file, "%d %.12lf %.12lf 0.0\n", nodes[i].id, nodes[i].position.x, nodes[i].position.y);
     }
     fprintf(file, "$EndNodes\n");
 
