@@ -233,14 +233,33 @@ int main(int argc, char *argv[]) {
         start = end;
         for (int k = 1; k <= input.smoothing_iterations; k++) {
             double sum = 0.0;
-            for (int c = 2; c < cols; c++) {
-                for (int r = 2; r < rows; r++) {
+            for (int c = 1; c < cols; c++) {
+                for (int r = 1; r < rows; r++) {
                     int i = c + r * (cols + 1);
                     if (nodes[i].type != 0) continue;
                     sum += fabs((nodes[i+1].position.x + nodes[i-1].position.x + nodes[i-cols-1].position.x + nodes[i+cols+1].position.x)/4.0 - nodes[i].position.x);
                     sum += fabs((nodes[i+1].position.y + nodes[i-1].position.y + nodes[i-cols-1].position.y + nodes[i+cols+1].position.y)/4.0 - nodes[i].position.y);
                     nodes[i].position.x = (nodes[i+1].position.x + nodes[i-1].position.x + nodes[i-cols-1].position.x + nodes[i+cols+1].position.x)/4.0;
                     nodes[i].position.y = (nodes[i+1].position.y + nodes[i-1].position.y + nodes[i-cols-1].position.y + nodes[i+cols+1].position.y)/4.0;    
+                }
+            }
+            for (int c = 1; c < cols; c++) {
+                if (nodes[c].type == 0 && input.coarsening_levels[0] == 0) {
+                    nodes[c].position.x = (nodes[c+1].position.x + nodes[c-1].position.x)/2.0;
+                }
+                int i = c + rows*(cols + 1);
+                if (nodes[i].type == 0 && input.coarsening_levels[2] == 0) {
+                    nodes[i].position.x = (nodes[i+1].position.x + nodes[i-1].position.x)/2.0;
+                } 
+            }
+            for (int r = 1; r < rows; r++) {
+                int i = r * (cols + 1);
+                if (nodes[i].type == 0 && input.coarsening_levels[1] == 0) {
+                    nodes[i].position.y = (nodes[i-cols-1].position.y + nodes[i+cols+1].position.y)/2.0;
+                }
+                i = r * (cols + 1) + cols;
+                if (nodes[i].type == 0 && input.coarsening_levels[3] == 0) {
+                    nodes[i].position.y = (nodes[i-cols-1].position.y + nodes[i+cols+1].position.y)/2.0;
                 }
             }
             if (sum < EPSILON) {
@@ -255,6 +274,16 @@ int main(int argc, char *argv[]) {
                 printf("Smoothing algorithm stopped at %d iterations. (%.2f seconds)\n", k, (float) (end - start) / CLOCKS_PER_SEC);
             }
         }
+    }
+
+    for (int c = 0; c < cols + 1; c++) {
+        nodes[c].position.y = Y0;
+        nodes[c + rows*(cols + 1)].position.y = Y0 + rows * cell_size;
+    }
+
+    for (int r = 0; r < rows + 1; r++) {
+        nodes[r * (cols + 1)].position.x = X0;
+        nodes[r * (cols + 1) + cols].position.x = X0 + cols * cell_size;
     }
 
     coarsening(&nodes, &n_nodes, &elements, &n_elements, input);
