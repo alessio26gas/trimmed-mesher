@@ -92,7 +92,11 @@ int main(int argc, char *argv[]) {
                     nwl.n = get_nwl_n(nwl);
                 }
             } else {
-                nwl.distance = get_nwl_distance(nwl);
+                if (nwl.n == 1) {
+                    nwl.distance = nwl.first;
+                } else {
+                    nwl.distance = get_nwl_distance(nwl);
+                }
             }
         }
         end = clock();
@@ -253,6 +257,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    coarsening(&nodes, &n_nodes, &elements, &n_elements, input);
+
     if (enable_nwl) {
         printf("Generating near wall cells...");
         start = end;
@@ -270,8 +276,6 @@ int main(int argc, char *argv[]) {
         end = clock();
         printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }
-
-    coarsening(&nodes, &n_nodes, &elements, &n_elements, input);
 
     Element *boundaries = malloc(4 * (rows + cols) * sizeof(Element)); // 4?
     if (!boundaries) {
