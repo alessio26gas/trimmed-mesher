@@ -249,7 +249,7 @@ Point nearest_point(Point p, Point *body, int n_points, double nwl_distance) {
     return nearest;
 }
 
-void get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int n_nodes, double cell_size) {
+int get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int n_nodes, double cell_size, double X0, double Y0, int rows, int cols) {
 
     for (int i = 0; i < n_nodes; i++) {
         if (nodes[i].type == 2) (*n_offset_nodes)++;
@@ -258,7 +258,7 @@ void get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int 
     *offset_nodes = malloc(*n_offset_nodes * sizeof(int));
     if (!offset_nodes) {
         perror("An error has occurred");
-        return;
+        return 1;
     }
 
     Node *type2_nodes = malloc(*n_offset_nodes * sizeof(Node));
@@ -272,8 +272,34 @@ void get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int 
         }
     }
 
+    int simm = 0;
+    for (int i = 0; i < *n_offset_nodes; i++) {
+        if (
+            type2_nodes[i].position.x < X0 + EPSILON ||
+            type2_nodes[i].position.x > X0 + cols * cell_size - EPSILON ||
+            type2_nodes[i].position.y < Y0 + EPSILON ||
+            type2_nodes[i].position.y > Y0 + rows * cell_size - EPSILON
+        ) simm = type2_nodes[i].id;
+    }
+
     int *flag = malloc(*n_offset_nodes * sizeof(int));
     for (int i = 0; i < *n_offset_nodes; i++) flag[i] = 0;
+
+    if (simm != 0) {
+        int index = 0;
+        int tmp = ids[0];
+        Node temp_node = type2_nodes[0];
+        for (int i = 0; i < *n_offset_nodes; i++) {
+            if (ids[i] == simm) {
+                index = i;
+                break;
+            }
+        }
+        ids[0] = simm;
+        ids[index] = tmp;
+        type2_nodes[0] = type2_nodes[index];
+        type2_nodes[index] = temp_node;
+    }
 
     int current = 0;
     flag[current] = 1;
@@ -287,6 +313,9 @@ void get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int 
         (*offset_nodes)[i] = ids[nearest];
         current = nearest;
     }
+
+    if (simm != 0) return 1;
+    return 0;
 }
 
 void extrude_near_wall_cells(
@@ -294,7 +323,8 @@ void extrude_near_wall_cells(
     Node **nodes, int *n_nodes,
     Point *body, int n_body,
     int *offset_nodes, int n_offset_nodes,
-    NearWallLayer nwl
+    NearWallLayer nwl, int simmetry,
+    double X0, int cols, double cell_size
 ) {
     Point *pA = malloc(n_offset_nodes * sizeof(Point));
     for (int i = 0; i < n_offset_nodes; i++) {
@@ -315,11 +345,18 @@ void extrude_near_wall_cells(
     Point pBold[n_offset_nodes];
     bool singularities = true;
 
+    int n_el = n_offset_nodes;
+    int n_el0 = 0;
+    if (simmetry == 1) {
+        n_el0 = 1;
+        n_el = n_offset_nodes - 1;
+    }
+
     int iter = 0;
     while (singularities && iter < nwl.surf_max_iter) {
         iter++;
         singularities = false;
-        for (int i = 0; i < n_offset_nodes; i++) {
+        for (int i = n_el0; i < n_el; i++) {
             int j = (i + 1) % n_offset_nodes;
             int h = (n_offset_nodes + i - 1) % n_offset_nodes;
             r[i] = 0; l[i] = 0;
@@ -327,11 +364,11 @@ void extrude_near_wall_cells(
             if (points_are_close(pB[i], pB[h], nwl.min_surf_distance + EPSILON)) l[i] = 1;
         }
 
-        for (int i = 0; i < n_offset_nodes; i++) {
+        for (int i = n_el0; i < n_el; i++) {
             pBold[i] = pB[i];
         }
 
-        for (int i = 0; i < n_offset_nodes; i++) {
+        for (int i = n_el0; i < n_el; i++) {
             if (l[i] == 1 && r[i] == 1) {
                 singularities = true;
                 c[i] = 1;
@@ -382,7 +419,7 @@ void extrude_near_wall_cells(
             (*n_nodes)++;
         }
 
-        for (int i = 0; i < n_offset_nodes; i++) {
+        for (int i = 0; i < n_el; i++) {
             int n1 = (*nodes)[kk + i].id;
             int n2 = (*nodes)[kk + (i + 1) % n_offset_nodes].id;
             int n3 = offset_nodes[(i + 1) % n_offset_nodes];
@@ -417,7 +454,7 @@ void extrude_near_wall_cells(
             (*n_nodes)++;
         }
 
-        for (int i = 0; i < n_offset_nodes; i++) {
+        for (int i = 0; i < n_el; i++) {
             int n1 = (*nodes)[kk + i].id;
             int n2 = (*nodes)[kk + (i + 1) % n_offset_nodes].id;
             int n3 = (*nodes)[kk + n_offset_nodes + (i + 1) % n_offset_nodes].id;
@@ -431,7 +468,7 @@ void extrude_near_wall_cells(
             (*n_elements)++;
         }
 
-        for (int i = 0; i < n_offset_nodes; i++) {
+        for (int i = 0; i < n_el; i++) {
             int n1 = (*nodes)[kk + n_offset_nodes + i].id;
             int n2 = (*nodes)[kk + n_offset_nodes + (i + 1) % n_offset_nodes].id;
             int n3 = offset_nodes[(i + 1) % n_offset_nodes];
@@ -471,7 +508,7 @@ void extrude_near_wall_cells(
         }
 
         for (int j = 0; j < 2; j++) {
-            for (int i = 0; i < n_offset_nodes; i++) {
+            for (int i = 0; i < n_el; i++) {
                 int n1 = (*nodes)[kk + j * n_offset_nodes + i].id;
                 int n2 = (*nodes)[kk + j * n_offset_nodes + (i + 1) % n_offset_nodes].id;
                 int n3 = (*nodes)[kk + (j + 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
@@ -486,7 +523,7 @@ void extrude_near_wall_cells(
             }
         }
 
-        for (int i = 0; i < n_offset_nodes; i++) {
+        for (int i = 0; i < n_el; i++) {
             int n1 = (*nodes)[kk + n_offset_nodes + i].id;
             int n2 = (*nodes)[kk + n_offset_nodes + (i + 1) % n_offset_nodes].id;
             int n3 = offset_nodes[(i + 1) % n_offset_nodes];
@@ -529,7 +566,7 @@ void extrude_near_wall_cells(
     }
 
     for (int j = 0; j < nwl.n - 1; j++) {
-        for (int i = 0; i < n_offset_nodes; i++) {
+        for (int i = 0; i < n_el; i++) {
             int n1 = (*nodes)[kk + j * n_offset_nodes + i].id;
             int n2 = (*nodes)[kk + j * n_offset_nodes + (i + 1) % n_offset_nodes].id;
             int n3 = (*nodes)[kk + (j + 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
@@ -544,7 +581,7 @@ void extrude_near_wall_cells(
         }
     }
 
-    for (int i = 0; i < n_offset_nodes; i++) {
+    for (int i = 0; i < n_el; i++) {
         int n1 = (*nodes)[kk + (nwl.n - 1) * n_offset_nodes + i].id;
         int n2 = (*nodes)[kk + (nwl.n - 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
         int n3 = offset_nodes[(i + 1) % n_offset_nodes];

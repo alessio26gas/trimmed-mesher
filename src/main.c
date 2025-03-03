@@ -293,13 +293,14 @@ int main(int argc, char *argv[]) {
         start = end;
         int *offset_nodes;
         int n_offset_nodes = 0;
-        get_offset_nodes(&offset_nodes, &n_offset_nodes, nodes, n_nodes, cell_size);
+        int simmetry = get_offset_nodes(&offset_nodes, &n_offset_nodes, nodes, n_nodes, cell_size, X0, Y0, rows, cols);
         extrude_near_wall_cells(
             &elements, &n_elements,
             &nodes, &n_nodes,
             body, n_body,
             offset_nodes, n_offset_nodes,
-            nwl
+            nwl, simmetry,
+            X0, cols, cell_size
         );
         free(offset_nodes);
         end = clock();
