@@ -14,6 +14,10 @@ double f(double SF, NearWallLayer nwl) {
     return nwl.first * (1 - pow(SF, nwl.n)) / (1 - SF) - nwl.distance;
 }
 
+double f_h(double SF, NearWallLayer nwl) {
+    return 1 - tanh(SF*(1-1/((double) nwl.n)))/tanh(SF) - nwl.first/nwl.distance;
+}
+
 double brent(double (*f)(double, NearWallLayer), NearWallLayer nwl) {
     double a = 1.0;
     double b = 1.0e6;
@@ -545,6 +549,12 @@ void extrude_near_wall_cells(
         K += pow(nwl.SF, i);
         x[i] = nwl.first / nwl.distance * K;
     }
+
+    // HYPERBOLIC TANGENT DISTRIBUTION
+    // nwl.SF = brent(f_h, nwl);
+    // for (int i = 0; i < nwl.n - 1; i++) {
+    //     x[i] = 1 + tanh(nwl.SF * ((i + 1.0)/(nwl.n) - 1))/tanh(nwl.SF);
+    // }
 
     int kk = *n_nodes;
 
