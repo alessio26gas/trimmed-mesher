@@ -228,6 +228,8 @@ Point nearest_point(Point p, Point *body, int n_points, double nwl_distance) {
     Point nearest;
     double min_distance = 10 * nwl_distance;
     double ABx, ABy, APx, APy, t, Xq, Yq, dx, dy, distance;
+    double xp = p.x, yp = p.y;
+    int i_min = 0;
     for (int i = 0; i < n_points; i++) {
         int j = (i + 1) % n_points;
 
@@ -246,10 +248,39 @@ Point nearest_point(Point p, Point *body, int n_points, double nwl_distance) {
 
         if (distance < min_distance) {
             min_distance = distance;
-            nearest.x = Xq;
-            nearest.y = Yq;
+            xp = Xq;
+            yp = Yq;
+            i_min = i;
         }
     }
+
+    int count = 1;
+    for (int i = 0; i < n_points; i++) {
+        if (i == i_min) continue;
+        int j = (i + 1) % n_points;
+
+        ABx = body[j].x - body[i].x;
+        ABy = body[j].y - body[i].y;
+        APx = p.x - body[i].x;
+        APy = p.y - body[i].y;
+        t = (APx * ABx + APy * ABy)/(ABx * ABx + ABy * ABy);
+        if (t < 0) t = 0;
+        if (t > 1) t = 1;
+        Xq = body[i].x + t * ABx;
+        Yq = body[i].y + t * ABy;
+        dx = Xq - p.x;
+        dy = Yq - p.y;
+        distance = sqrt(dx * dx + dy * dy);
+
+        if (distance < min_distance + EPSILON) {
+            xp += Xq;
+            yp += Yq;
+            count++;
+        }
+    }
+
+    nearest.x = xp / count;
+    nearest.y = yp / count;
     return nearest;
 }
 
@@ -403,7 +434,11 @@ void extrude_near_wall_cells(
     }
 
     for (int i = 0; i < n_offset_nodes; i++) {
-        pB[i] = nearest_point(pB[i], body, n_body, nwl.distance);
+        Point pBtemp;
+        do {
+            pBtemp = pB[i];
+            pB[i] = nearest_point(pB[i], body, n_body, nwl.distance);
+        } while (!points_are_equal(pB[i], pBtemp));
     }
 
     double A = 0.0;
