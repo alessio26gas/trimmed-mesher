@@ -46,6 +46,43 @@ int load_body(const char *filename, Point **body, int *n_points) {
     return 0;
 }
 
+int load_shock(const char *filename, Point **shock, int *n_points) {
+
+    if (!strcmp(filename, "")) {
+        *n_points = 0;
+        return 0;
+    }
+
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        perror("An error has occured while opening the file");
+        return -1;
+    }
+
+    int count = 0;
+    double x, y;
+    while (fscanf(file, "%lf,%lf", &x, &y) == 2) {
+        count++;
+    }
+
+    *shock = (Point *)malloc(count * sizeof(Point));
+    if (!*shock) {
+        perror("An error has occurred");
+        fclose(file);
+        return -1;
+    }
+
+    rewind(file);
+    int i = 0;
+    while (fscanf(file, "%lf,%lf", &(*shock)[i].x, &(*shock)[i].y) == 2) {
+        i++;
+    }
+
+    *n_points = count;
+    fclose(file);
+    return 0;
+}
+
 int get_point_type(Point p, Point *body, int n_points) {
     int inside = 0;
     for (int i = 0; i < n_points; i++) {
