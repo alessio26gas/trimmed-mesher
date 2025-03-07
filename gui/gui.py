@@ -69,23 +69,23 @@ class TrimmedMesher(ctk.CTk):
         )
         self.nwl_button.grid(row=0, column=1, padx=0, pady=(1, 0), sticky="news")
 
-        self.smoothing_button = ctk.CTkButton(
-            self.tabs_frame, text="Smoothing",
+        self.coarsening_button = ctk.CTkButton(
+            self.tabs_frame, text="Coarsening",
             command=lambda: self.switch_tab(2),
             corner_radius=0,
             border_width=0,
             fg_color=self.off, hover_color=self.off_h
         )
-        self.smoothing_button.grid(row=0, column=2, padx=0, pady=(1, 0), sticky="news")
+        self.coarsening_button.grid(row=0, column=2, padx=0, pady=(1, 0), sticky="news")
 
-        self.coarsening_button = ctk.CTkButton(
-            self.tabs_frame, text="Coarsening",
+        self.advanced_button = ctk.CTkButton(
+            self.tabs_frame, text="Advanced",
             command=lambda: self.switch_tab(3),
             corner_radius=0,
             border_width=0,
             fg_color=self.off, hover_color=self.off_h
         )
-        self.coarsening_button.grid(row=0, column=3, padx=(0, 1), pady=(1, 0), sticky="news")
+        self.advanced_button.grid(row=0, column=3, padx=(0, 1), pady=(1, 0), sticky="news")
 
         self.tabs_frame.grid(row=0, column=0, padx=4, pady=(4, 0), sticky="news")
 
@@ -124,7 +124,7 @@ class TrimmedMesher(ctk.CTk):
         self.center_y_entry = ctk.CTkEntry(self.general_frame)
         self.center_y_entry.place(anchor="e", relwidth=0.12, relx=0.99, rely=5/10)
 
-        ctk.CTkLabel(self.general_frame, text="Rotation angle").place(anchor="w", relx=0.51, rely=6.9/10)
+        ctk.CTkLabel(self.general_frame, text="Rotation angle [°]").place(anchor="w", relx=0.51, rely=6.9/10)
         self.rotation_angle_entry = ctk.CTkEntry(self.general_frame)
         self.rotation_angle_entry.place(anchor="e", relwidth=0.24, relx=0.99, rely=6.9/10)
 
@@ -440,11 +440,11 @@ class TrimmedMesher(ctk.CTk):
                 self.nwl_frame.tkraise()
                 self.nwl_button.configure(fg_color=self.on, hover_color=self.on_h)
             case 2:
-                self.smoothing_frame.tkraise()
-                self.smoothing_button.configure(fg_color=self.on, hover_color=self.on_h)
-            case 3:
                 self.coarsening_frame.tkraise()
                 self.coarsening_button.configure(fg_color=self.on, hover_color=self.on_h)
+            case 3:
+                self.advanced_frame.tkraise()
+                self.advanced_button.configure(fg_color=self.on, hover_color=self.on_h)
 
     def get_info(self):
         if self.info is None or not self.info.winfo_exists():
