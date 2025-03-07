@@ -11,6 +11,7 @@ typedef struct {
     int n;
     double min_surf_distance;
     int surf_max_iter;
+    int distribution;
 } NearWallLayer;
 
 int get_nwl_n(NearWallLayer nwl);

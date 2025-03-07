@@ -35,11 +35,12 @@ Input get_input(int argc, char *argv[]) {
         .distance = 0,
         .n = 0,
         .SF = 1.25,
-        .min_surf_distance=0.0,
-        .surf_max_iter=1000,
+        .min_surf_distance = 0.0,
+        .surf_max_iter = 1000,
+        .distribution = 0,
     };
 
-    if (argc == 31) {
+    if (argc == 32) {
         curve = argv[1];
         outputfile = argv[2];
         cell_size = atof(argv[3]);
@@ -66,6 +67,7 @@ Input get_input(int argc, char *argv[]) {
         nwl.SF = atof(argv[28]);
         nwl.min_surf_distance = atof(argv[29]);
         nwl.surf_max_iter = atof(argv[30]);
+        nwl.distribution = atoi(argv[31]);
     }
 
     input = (Input){
