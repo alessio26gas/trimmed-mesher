@@ -403,7 +403,7 @@ class TrimmedMesher(ctk.CTk):
         self.input.nwl_distance = self.nwl_distance_entry.get()
         self.input.nwl_n = self.nwl_n_entry.get()
         self.input.nwl_SF = self.nwl_sf_entry.get()
-        if self.nwl_distribution == "Geometric":
+        if self.nwl_distribution.get() == "Geometric":
             self.input.nwl_distribution = "0"
         else:
             self.input.nwl_distribution = "1"

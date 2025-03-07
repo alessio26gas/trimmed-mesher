@@ -73,32 +73,11 @@ int main(int argc, char *argv[]) {
     Point *offset;
     int n_offset;
     if (enable_nwl) {
-        nwl = input.nwl;
 
         printf("Computing near wall parameters...");
         start = end;
-        if (nwl.last > 0) {
-            if (nwl.n > 2) {
-                nwl.SF = get_SF(nwl);
-            } else if (!nwl.n > 0) {
-                nwl.n = get_nwl_n(nwl);
-            }
-            nwl.distance = get_nwl_distance(nwl);
-        } else {
-            if (nwl.distance > 0) {
-                if (nwl.n > 0) {
-                    nwl.SF = get_SF(nwl);
-                } else {
-                    nwl.n = get_nwl_n(nwl);
-                }
-            } else {
-                if (nwl.n == 1) {
-                    nwl.distance = nwl.first;
-                } else {
-                    nwl.distance = get_nwl_distance(nwl);
-                }
-            }
-        }
+        nwl = input.nwl;
+        compute_nwl(&nwl);
         end = clock();
         printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 

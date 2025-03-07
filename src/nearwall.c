@@ -6,21 +6,49 @@
 
 #define PI 3.14159265358979323846
 #define EPSILON 1e-12
-#define MAX_ITER 100
+#define MAX_ITER 1000
 
-double f(double SF, NearWallLayer nwl) {
+double f_dnfG(double SF, NearWallLayer nwl) {
     if (fabs(SF - 1.0) < EPSILON)
         return nwl.first * nwl.n - nwl.distance;
     return nwl.first * (1 - pow(SF, nwl.n)) / (1 - SF) - nwl.distance;
 }
 
-double f_h(double SF, NearWallLayer nwl) {
-    return 1 - tanh(SF*(1-1/((double) nwl.n)))/tanh(SF) - nwl.first/nwl.distance;
+double f_dnfH(double SF, NearWallLayer nwl) {
+    return 1.0 - nwl.first / nwl.distance - tanh(SF * (nwl.n - 1.0) / nwl.n) / tanh(SF);
 }
 
-double brent(double (*f)(double, NearWallLayer), NearWallLayer nwl) {
-    double a = 1.0;
-    double b = 1.0e6;
+double f_dnLG(double SF, NearWallLayer nwl) {
+    if (fabs(SF - 1.0) < EPSILON)
+        return nwl.first * nwl.n - nwl.distance;
+    return nwl.last * (1 - pow(SF, nwl.n)) - nwl.distance * (1 - SF) * pow(SF, nwl.n - 1);
+}
+
+double f_dnLH(double SF, NearWallLayer nwl) {
+    return nwl.distance * tanh(SF/nwl.n) - nwl.last * tanh(SF);
+}
+
+double f_dfLG(double n, NearWallLayer nwl) {
+    return nwl.first * (1.0 - pow(nwl.last / nwl.first, n / (n - 1.0))) - nwl.distance * (1.0 - pow(nwl.last / nwl.first, 1.0/(n-1.0)));
+}
+
+double f_dfLH(double SF, NearWallLayer nwl) {
+    return (nwl.first/nwl.distance - 1.0)*tanh(SF) + tanh(SF - atanh(nwl.last/nwl.distance*tanh(SF)));
+}
+
+double f_dLSFG(double n, NearWallLayer nwl) {
+    return nwl.last * (1 - pow(nwl.SF, n)) - nwl.distance * (1 - nwl.SF) * pow(nwl.SF, n - 1);
+}
+
+double f_nfLH(double SF, NearWallLayer nwl) {
+    return nwl.first * tanh(SF/nwl.n) - nwl.last * (tanh(SF) - tanh(SF * (nwl.n - 1.0)/nwl.n));
+}
+
+double f_fLSFH(double n, NearWallLayer nwl) {
+    return nwl.first * tanh(nwl.SF / n) - nwl.last * (tanh(nwl.SF) - tanh(nwl.SF * (n - 1.0) / n));
+}
+
+double brent(double (*f)(double, NearWallLayer), NearWallLayer nwl, double a, double b) {
     double fa = f(a, nwl);
     double fb = f(b, nwl);
 
@@ -84,25 +112,101 @@ double brent(double (*f)(double, NearWallLayer), NearWallLayer nwl) {
     exit(1);
 }
 
-int get_nwl_n(NearWallLayer nwl) {
-    if (nwl.last > 0) return 1 + log(nwl.last/nwl.first)/log(nwl.SF);
-    if (nwl.SF == 1) return nwl.distance/nwl.first - 1;
-    return log(1 - nwl.distance/nwl.first * (1 - nwl.SF))/log(nwl.SF);
-}
+void compute_nwl(NearWallLayer *nwl) {
 
-double get_nwl_distance(NearWallLayer nwl) {
-    double sum = 0.0;
-    for (int i = 0; i < nwl.n; i++) {
-        sum += pow(nwl.SF, i);
+    if (nwl->distance > 0) {
+        if (nwl->n > 0) {
+            if (nwl->first > 0) {
+                if (nwl->distribution == 0) {
+                    nwl->SF = brent(f_dnfG, *nwl, 1.0, 1.0e6);
+                } else {
+                    nwl->SF = brent(f_dnfH, *nwl, 1.0, 1.0e6);
+                }
+            } else if (nwl->last > 0) {
+                if (nwl->distribution == 0) {
+                    nwl->SF = brent(f_dnLG, *nwl, 1.0, 1.0e6);
+                    nwl->first = (nwl->distance) * (1 - nwl->SF) / (1 - pow(nwl->SF, nwl->n));
+                } else {
+                    nwl->SF = brent(f_dnLH, *nwl, 1.0, 1.0e6);
+                    nwl->first = nwl->distance * (1 - tanh(nwl->SF * (nwl->n - 1.0) / nwl->n)/tanh(nwl->SF));
+                }
+            } else {
+                if (nwl->distribution == 0) {
+                    nwl->first = nwl->distance * (1 - nwl->SF) / (1 - pow(nwl->SF, nwl->n));
+                } else {
+                    nwl->first = nwl->distance * (1 - tanh(nwl->SF * (nwl->n - 1) / nwl->n)/tanh(nwl->SF));
+                }
+            }
+        } else if (nwl->first > 0) {
+            if (nwl->last > 0) {
+                if (nwl->distribution == 0) {
+                    nwl->n = (int) ceil(brent(f_dfLG, *nwl, 2, 1e6));
+                    nwl->SF = brent(f_dnfG, *nwl, 1.0+EPSILON, 1.0e6);
+                } else {
+                    nwl->SF = brent(f_dfLH, *nwl, 1.0+EPSILON, 1.0e6);
+                    nwl->n = (int) ceil(1.0 / (1 - 1/nwl->SF * atanh((1 - nwl->first/nwl->distance) * tanh(nwl->SF))));
+                }
+            } else {
+                if (nwl->distribution == 0) {
+                    nwl->n = (int) ceil(log(1 - nwl->distance/nwl->first * (1 - nwl->SF)) / log(nwl->SF));
+                } else {
+                    nwl->n = (int) ceil(1.0 / (1 - 1/nwl->SF * atanh((1 - nwl->first/nwl->distance) * tanh(nwl->SF))));
+                }
+            }
+        } else {
+            if (nwl->distribution == 0) {
+                nwl->n = (int) ceil(brent(f_dLSFG, *nwl, 1, 1000));
+                nwl->first = nwl->distance * (1 - nwl->SF) / (1 - pow(nwl->SF, nwl->n));
+            } else {
+                nwl->n = (int) ceil(nwl->SF / atanh(nwl->last/nwl->distance * tanh(nwl->SF)));
+                nwl->first = nwl->distance * (1 - tanh(nwl->SF * (nwl->n - 1) / nwl->n)/tanh(nwl->SF));
+            }
+        }
+    } else if (nwl->n > 0) {
+        if (nwl->first > 0) {
+            if (nwl->last > 0) {
+                if (nwl->distribution == 0) {
+                    nwl->SF = pow(nwl->last / nwl->first, 1.0 / (nwl->n - 1.0));
+                    nwl->distance = nwl->first * (1 - pow(nwl->SF, nwl->n)) / (1 - nwl->SF);
+                } else {
+                    nwl->SF = brent(f_nfLH, *nwl, 1.0, 1.0e6);
+                    nwl->distance = nwl->first / (1 - tanh(nwl->SF * (nwl->n - 1.0) / nwl->n)/tanh(nwl->SF));
+                }
+            } else {
+                if (nwl->distribution == 0) {
+                    nwl->distance = nwl->first * (1 - pow(nwl->SF, nwl->n)) / (1 - nwl->SF);
+                } else {
+                    nwl->distance = nwl->first / (1 - tanh(nwl->SF * (nwl->n - 1.0) / nwl->n)/tanh(nwl->SF));
+                }
+            }
+        } else {
+            if (nwl->distribution == 0) {
+                nwl->first = nwl->last / pow(nwl->SF, nwl->n - 1.0);
+                nwl->distance = nwl->first * (1 - pow(nwl->SF, nwl->n)) / (1 - nwl->SF);
+            } else {
+                nwl->distance = nwl->last / (tanh(nwl->SF / nwl->n)/tanh(nwl->SF));
+                nwl->first = nwl->distance * (1 - tanh(nwl->SF * (nwl->n - 1) / nwl->n)/tanh(nwl->SF));
+            }
+        }
+    } else {
+        if (nwl->distribution == 0) {
+            nwl->n = (int) ceil(1 + log(nwl->last/nwl->first) / log(nwl->SF));
+            nwl->distance = nwl->first * (1 - pow(nwl->SF, nwl->n)) / (1 - nwl->SF);
+        } else {
+            nwl->n = (int) ceil(brent(f_fLSFH, *nwl, 1, 1e6));
+            nwl->distance = nwl->first / (1 - tanh(nwl->SF * (nwl->n - 1.0) / nwl->n)/tanh(nwl->SF));
+        }
     }
-    return nwl.first * sum;
-}
 
-double get_SF(NearWallLayer nwl) {
-    if (nwl.n < 3) return 1.0;
-    if (nwl.last > 0) return pow(nwl.last / nwl.first, 1.0 / (nwl.n - 1));
-    if (fabs(nwl.distance - nwl.first * nwl.n) < EPSILON) return 1.0;
-    return brent(f, nwl);
+    if (nwl->distribution == 0) {
+        printf("\n\tDistribution: Geometric progression\n");
+    } else {
+        printf("\n\tDistribution: Hyperbolic tangent\n");
+    }
+    printf("\tNumber of layers = %d\n", nwl->n);
+    printf("\tNear wall thickness = %f\n", nwl->first);
+    printf("\tTotal thickness = %f\n", nwl->distance);
+    printf("\tStretch factor = %f\n", nwl->SF);
 }
 
 bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, double nwl_distance, double cell_size) {
@@ -579,17 +683,18 @@ void extrude_near_wall_cells(
     }
 
     double *x = malloc((nwl.n - 1) * sizeof(double));
-    double K = 0;
-    for (int i = 0; i < nwl.n - 1; i++) {
-        K += pow(nwl.SF, i);
-        x[i] = nwl.first / nwl.distance * K;
-    }
 
-    // HYPERBOLIC TANGENT DISTRIBUTION
-    // nwl.SF = brent(f_h, nwl);
-    // for (int i = 0; i < nwl.n - 1; i++) {
-    //     x[i] = 1 + tanh(nwl.SF * ((i + 1.0)/(nwl.n) - 1))/tanh(nwl.SF);
-    // }
+    if (nwl.distribution == 0) {
+        double K = 0;
+        for (int i = 0; i < nwl.n - 1; i++) {
+            K += pow(nwl.SF, i);
+            x[i] = nwl.first / nwl.distance * K;
+        }
+    } else {
+        for (int i = 0; i < nwl.n - 1; i++) {
+            x[i] = 1 + tanh(nwl.SF * ((i + 1.0)/(nwl.n) - 1))/tanh(nwl.SF);
+        }
+    }
 
     int kk = *n_nodes;
 
