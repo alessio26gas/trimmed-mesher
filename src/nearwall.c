@@ -200,11 +200,14 @@ void compute_nwl(NearWallLayer *nwl) {
 
     if (nwl->distribution == 0) {
         printf("\n\tDistribution: Geometric progression\n");
+        nwl->last = nwl->first * pow(nwl->SF, nwl->n - 1);
     } else {
         printf("\n\tDistribution: Hyperbolic tangent\n");
+        nwl->last = nwl->distance * tanh(nwl->SF/nwl->n) / tanh(nwl->SF);
     }
     printf("\tNumber of layers = %d\n", nwl->n);
     printf("\tNear wall thickness = %f\n", nwl->first);
+    printf("\tLast layer thickness = %f\n", nwl->last);
     printf("\tTotal thickness = %f\n", nwl->distance);
     printf("\tStretch factor = %f\n", nwl->SF);
 }
