@@ -7,8 +7,7 @@ typedef struct {
     double x, y;
 } Point;
 
-int load_body(const char *filename, Point **body, int *n_points);
-int load_shock(const char *filename, Point **shock, int *n_points);
+int load_points(const char *filename, Point **points, int *n_points);
 int get_point_type(Point p, Point *body, int n_points);
 bool is_near_body(Point *p, Point *body, int n_points, double cell_size);
 bool get_intersection(Point a, Point b, Point c, Point d, Point *intersect);

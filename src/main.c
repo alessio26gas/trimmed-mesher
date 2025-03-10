@@ -44,7 +44,8 @@ int main(int argc, char *argv[]) {
 
     Point *body;
     int n_body;
-    if (load_body(input.curve, &body, &n_body) != 0) {
+    printf("Loading curve...");
+    if (load_points(input.curve, &body, &n_body) != 0) {
         printf(" Failed.\n");
         return -1;
     }

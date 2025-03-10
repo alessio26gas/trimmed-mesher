@@ -7,46 +7,7 @@
 
 #define EPSILON 1e-12
 
-int load_body(const char *filename, Point **body, int *n_points) {
-
-    if (!strcmp(filename, "")) {
-        *n_points = 0;
-        return 0;
-    }
-
-    printf("Loading curve...");
-
-    FILE *file = fopen(filename, "r");
-    if (!file) {
-        perror("An error has occured while opening the file");
-        return -1;
-    }
-
-    int count = 0;
-    double x, y;
-    while (fscanf(file, "%lf,%lf", &x, &y) == 2) {
-        count++;
-    }
-
-    *body = (Point *)malloc(count * sizeof(Point));
-    if (!*body) {
-        perror("An error has occurred");
-        fclose(file);
-        return -1;
-    }
-
-    rewind(file);
-    int i = 0;
-    while (fscanf(file, "%lf,%lf", &(*body)[i].x, &(*body)[i].y) == 2) {
-        i++;
-    }
-
-    *n_points = count;
-    fclose(file);
-    return 0;
-}
-
-int load_shock(const char *filename, Point **shock, int *n_points) {
+int load_points(const char *filename, Point **points, int *n_points) {
 
     if (!strcmp(filename, "")) {
         *n_points = 0;
@@ -65,8 +26,8 @@ int load_shock(const char *filename, Point **shock, int *n_points) {
         count++;
     }
 
-    *shock = (Point *)malloc(count * sizeof(Point));
-    if (!*shock) {
+    *points = (Point *)malloc(count * sizeof(Point));
+    if (!*points) {
         perror("An error has occurred");
         fclose(file);
         return -1;
@@ -74,7 +35,7 @@ int load_shock(const char *filename, Point **shock, int *n_points) {
 
     rewind(file);
     int i = 0;
-    while (fscanf(file, "%lf,%lf", &(*shock)[i].x, &(*shock)[i].y) == 2) {
+    while (fscanf(file, "%lf,%lf", &(*points)[i].x, &(*points)[i].y) == 2) {
         i++;
     }
 
