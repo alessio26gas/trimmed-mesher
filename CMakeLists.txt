@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
 project(MESHER VERSION 1.0 LANGUAGES C)
-set(CMAKE_C_FLAGS_RELEASE "-O3")
 file(GLOB SOURCES "src/*.c")
 add_executable(mesher ${SOURCES})
 
@@ -10,3 +9,7 @@ if(WIN32)
 else()
     target_link_libraries(mesher m)
 endif()
+
+set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_C_FLAGS_RELEASE "-O3 -march=native -flto -funroll-loops -ffast-math")
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
