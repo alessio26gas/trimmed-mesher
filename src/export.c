@@ -11,8 +11,6 @@ void write_mesh_file(const char *filename, Node *nodes, int n_nodes, Element *el
 
     fprintf(file, "$MeshFormat\n2.2 0 8\n$EndMeshFormat\n");
 
-    // TODO: Physical Entities
-
     fprintf(file, "$Nodes\n");
     fprintf(file, "%d\n", n_nodes);
     for (int i = 0; i < n_nodes; i++) {
@@ -21,17 +19,24 @@ void write_mesh_file(const char *filename, Node *nodes, int n_nodes, Element *el
     fprintf(file, "$EndNodes\n");
 
     fprintf(file, "$Elements\n");
-    fprintf(file, "%d\n", n_elements);
+    fprintf(file, "%d\n", n_elements + n_boundaries);
     for (int i = 0; i < n_elements; i++) {
         if (elements[i].type == 0) continue;
-        fprintf(file, "%d %d 1 99", elements[i].id, elements[i].type);
+        fprintf(file, "%d %d 2 99 0", elements[i].id, elements[i].type);
         for (int j = 0; j < elements[i].n_nodes; j++) {
             fprintf(file, " %d", elements[i].nodes[j]);
         }
         fprintf(file, "\n");
     }
 
-    // TODO: Write Boundary Elements
+    for (int i = 0; i < n_boundaries; i++) {
+        if (boundaries[i].type == 0) continue;
+        fprintf(file, "%d %d 2 99 %d", boundaries[i].id, boundaries[i].type, boundaries[i].flag);
+        for (int j = 0; j < boundaries[i].n_nodes; j++) {
+            fprintf(file, " %d", boundaries[i].nodes[j]);
+        }
+        fprintf(file, "\n");
+    }
 
     fprintf(file, "$EndElements\n");
 
