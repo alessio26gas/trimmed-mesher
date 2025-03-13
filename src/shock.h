@@ -1,7 +1,7 @@
 #ifndef SHOCK_H
 #define SHOCK_H
 
-#include "element.h"
+#include "nearwall.h"
 
 typedef struct {
     double distance;
@@ -11,5 +11,7 @@ typedef struct {
     int n;
     int distribution;
 } NearShockLayer;
+
+void compute_nsl(NearShockLayer *nsl);
 
 #endif
