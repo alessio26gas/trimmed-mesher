@@ -295,6 +295,43 @@ int main(int argc, char *argv[]) {
     }
 
     int n_boundaries = 0;
+    int boundary_id = n_elements + 1;
+    for (int c = 0; c < cols; c++) {
+        if (nodes[c].type != 1 && nodes[c+1].type != 1) {
+            int n1 = nodes[c].id;
+            int n2 = nodes[c+1].id;
+            boundaries[n_boundaries] = (Element){boundary_id, 1, 2, {n1, n2}, 4};
+            n_boundaries++;
+            boundary_id++;
+        }
+    }
+    for (int r = 0; r < rows; r++) {
+        if (nodes[r * (cols + 1) + cols].type != 1 && nodes[(r + 1) * (cols + 1) + cols].type != 1) {
+            int n1 = nodes[r * (cols + 1) + cols].id;
+            int n2 = nodes[(r + 1) * (cols + 1) + cols].id;
+            boundaries[n_boundaries] = (Element){boundary_id, 1, 2, {n1, n2}, 5};
+            n_boundaries++;
+            boundary_id++;
+        }
+    }
+    for (int c = cols; c > 0; c--) {
+        if (nodes[c + rows*(cols + 1)].type != 1 && nodes[c-1 + rows*(cols + 1)].type != 1) {
+            int n1 = nodes[c + rows*(cols + 1)].id;
+            int n2 = nodes[c-1 + rows*(cols + 1)].id;
+            boundaries[n_boundaries] = (Element){boundary_id, 1, 2, {n1, n2}, 6};
+            n_boundaries++;
+            boundary_id++;
+        }
+    }
+    for (int r = rows; r > 0; r--) {
+        if (nodes[r * (cols + 1)].type != 1 && nodes[(r - 1) * (cols + 1)].type != 1) {
+            int n1 = nodes[r * (cols + 1)].id;
+            int n2 = nodes[(r - 1) * (cols + 1)].id;
+            boundaries[n_boundaries] = (Element){boundary_id, 1, 2, {n1, n2}, 7};
+            n_boundaries++;
+            boundary_id++;
+        }
+    }
 
     // TODO: Define Boundary Elements
 
