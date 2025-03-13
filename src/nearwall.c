@@ -206,7 +206,7 @@ void compute_nwl(NearWallLayer *nwl) {
         nwl->last = nwl->distance * tanh(nwl->SF/nwl->n) / tanh(nwl->SF);
     }
     printf("\tNumber of layers = %d\n", nwl->n);
-    printf("\tNear wall thickness = %f\n", nwl->first);
+    printf("\tFirst layer thickness = %f\n", nwl->first);
     printf("\tLast layer thickness = %f\n", nwl->last);
     printf("\tTotal thickness = %f\n", nwl->distance);
     printf("\tStretch factor = %f\n", nwl->SF);
