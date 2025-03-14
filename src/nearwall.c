@@ -315,7 +315,14 @@ bool compute_offset(Point **offset, int *n_offset, Point *body, int n_body, doub
     return true;
 }
 
-int nearest_node(Node *nodes, int *ids, int n, int current, int *flag, double cell_size) {
+int contains(Element element, int id) {
+    for (int i = 0; i < element.n_nodes; i++) {
+        if (element.nodes[i] == id) return 1;
+    }
+    return 0;
+}
+
+int nearest_node(Element *elements, int n_elements, Node *nodes, int *ids, int n, int current, int *flag, double cell_size) {
     int nearest = -1;
     double min_distance = 2 * cell_size;
 
@@ -323,8 +330,12 @@ int nearest_node(Node *nodes, int *ids, int n, int current, int *flag, double ce
         if (!flag[i]) {
             double distance = get_distance(nodes[current].position, nodes[i].position);
             if (distance < min_distance) {
-                min_distance = distance;
-                nearest = i;
+                for (int j = 0; j < n_elements; j++) {
+                    if (contains(elements[j], nodes[current].id) && contains(elements[j], nodes[i].id)) {
+                        min_distance = distance;
+                        nearest = i;
+                    }
+                }
             }
         }
     }
@@ -391,7 +402,7 @@ Point nearest_point(Point p, Point *body, int n_points, double nwl_distance) {
     return nearest;
 }
 
-int get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int n_nodes, double cell_size, double X0, double Y0, int rows, int cols) {
+int get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int n_nodes, Element *elements, int n_elements, double cell_size, double X0, double Y0, int rows, int cols) {
 
     for (int i = 0; i < n_nodes; i++) {
         if (nodes[i].type == 2) (*n_offset_nodes)++;
@@ -448,7 +459,7 @@ int get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int n
     (*offset_nodes)[0] = ids[current];
 
     for (int i = 1; i < *n_offset_nodes; i++) {
-        int nearest = nearest_node(type2_nodes, ids, *n_offset_nodes, current, flag, cell_size);
+        int nearest = nearest_node(elements, n_elements, type2_nodes, ids, *n_offset_nodes, current, flag, cell_size);
         if (nearest == -1) break;
 
         flag[nearest] = 1;
