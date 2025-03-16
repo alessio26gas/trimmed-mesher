@@ -571,7 +571,7 @@ void extrude_near_wall_cells(
 
         for (int i = 0; i < n_offset_nodes; i++) {
             (*nodes)[*n_nodes].position = pB[i];
-            (*nodes)[*n_nodes].type = 3;
+            (*nodes)[*n_nodes].type = 4;
             (*nodes)[*n_nodes].id = *n_nodes + 1;
             (*n_nodes)++;
         }
@@ -598,7 +598,7 @@ void extrude_near_wall_cells(
 
         for (int i = 0; i < n_offset_nodes; i++) {
             (*nodes)[*n_nodes].position = pB[i];
-            (*nodes)[*n_nodes].type = 3;
+            (*nodes)[*n_nodes].type = 4;
             (*nodes)[*n_nodes].id = *n_nodes + 1;
             (*n_nodes)++;
         }
@@ -649,7 +649,7 @@ void extrude_near_wall_cells(
 
         for (int i = 0; i < n_offset_nodes; i++) {
             (*nodes)[*n_nodes].position = pB[i];
-            (*nodes)[*n_nodes].type = 3;
+            (*nodes)[*n_nodes].type = 4;
             (*nodes)[*n_nodes].id = *n_nodes + 1;
             (*n_nodes)++;
         }
@@ -714,7 +714,7 @@ void extrude_near_wall_cells(
 
     for (int i = 0; i < n_offset_nodes; i++) {
         (*nodes)[*n_nodes].position = pB[i];
-        (*nodes)[*n_nodes].type = 3;
+        (*nodes)[*n_nodes].type = 4;
         (*nodes)[*n_nodes].id = *n_nodes + 1;
         (*n_nodes)++;
     }
