@@ -435,9 +435,6 @@ int get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int n
         ) simm = type2_nodes[i].id;
     }
 
-    int *flag = malloc(*n_offset_nodes * sizeof(int));
-    for (int i = 0; i < *n_offset_nodes; i++) flag[i] = 0;
-
     if (simm != 0) {
         int index = 0;
         int tmp = ids[0];
@@ -454,6 +451,7 @@ int get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int n
         type2_nodes[index] = temp_node;
     }
 
+    int *flag = calloc(*n_offset_nodes, sizeof(int));
     int current = 0;
     flag[current] = 1;
     (*offset_nodes)[0] = ids[current];
