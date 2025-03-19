@@ -84,7 +84,9 @@ Input get_input(int argc, char *argv[]) {
         .smoothing_iterations = smoothing_iterations,
         .enable_nwl = enable_nwl,
         .nwl = nwl,
-        .outputfile = outputfile
+        .outputfile = outputfile,
+        .shock_curve = shock_curve,
+        .nsl = nsl
     };
 
     memcpy(input.coarsening_levels, coarsening_levels, sizeof(coarsening_levels));

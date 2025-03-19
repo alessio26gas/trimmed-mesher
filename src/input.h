@@ -4,9 +4,11 @@
 #include "input.h"
 #include "point.h"
 #include "nearwall.h"
+#include "shock.h"
 
 typedef struct {
     char *curve;
+    char *shock_curve;
     double cell_size;
     int coarsening_levels[4];
     int coarsening_cells[4];
@@ -21,6 +23,7 @@ typedef struct {
     int smoothing_iterations;
     bool enable_nwl;
     NearWallLayer nwl;
+    NearShockLayer nsl;
     char *outputfile;
 } Input;
 
