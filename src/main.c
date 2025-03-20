@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <math.h>
 #include <time.h>
+#include <string.h>
 #include "point.h"
 #include "node.h"
 #include "element.h"
@@ -44,7 +45,7 @@ int main(int argc, char *argv[]) {
 
     Point *body;
     int n_body;
-    printf("Loading curve...");
+    if (strcmp(input.curve, "")) printf("Loading curve...");
     if (load_points(input.curve, &body, &n_body) != 0) {
         printf(" Failed.\n");
         return -1;
