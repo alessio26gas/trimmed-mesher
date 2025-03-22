@@ -40,6 +40,16 @@ Input get_input(int argc, char *argv[]) {
         .distribution = 0,
     };
 
+    char *shock_curve = "";
+    NearShockLayer nsl = {
+        .first = 0.00125,
+        .last = 0,
+        .distance = 0.05,
+        .n = 40,
+        .SF = 0,
+        .distribution = 0,
+    };
+
     if (argc == 32) {
         curve = argv[1];
         outputfile = argv[2];
