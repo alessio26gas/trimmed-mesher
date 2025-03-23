@@ -288,6 +288,9 @@ int main(int argc, char *argv[]) {
         printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }
 
+    printf("Computing boundary elements...");
+    start = end;
+
     Element *boundaries = malloc(4 * (rows + cols) * sizeof(Element)); // 4?
     if (!boundaries) {
         perror("An error has occurred");
@@ -334,7 +337,8 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    // TODO: Define Boundary Elements
+    end = clock();
+    printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
     printf("Writing output mesh file...");
     start = clock();
