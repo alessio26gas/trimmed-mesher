@@ -337,6 +337,85 @@ int main(int argc, char *argv[]) {
         }
     }
 
+    int on_body = enable_nwl ? 4 : 2;
+    int k = 0;
+    for (int i = 0; i < n_nodes; i++) {
+        if (nodes[i].type == on_body) k++;
+    }
+    int *ids_on_body = malloc(k * sizeof(int));
+    if (!ids_on_body) {
+        perror("An error has occurred");
+        return 1;
+    }
+    k = 0;
+    for (int i = 0; i < n_nodes; i++) {
+        if (nodes[i].type == on_body) {
+            ids_on_body[k] = nodes[i].id;
+            k++;
+        }
+    }
+
+    int simm = 0;
+    for (int i = 0; i < k; i++) {
+        if (
+            nodes[ids_on_body[i]-1].position.x < X0 + EPSILON ||
+            nodes[ids_on_body[i]-1].position.x > X0 + cols * cell_size - EPSILON ||
+            nodes[ids_on_body[i]-1].position.y < Y0 + EPSILON ||
+            nodes[ids_on_body[i]-1].position.y > Y0 + rows * cell_size - EPSILON
+        ) simm = nodes[ids_on_body[i]-1].id;
+    }
+    if (simm != 0) {
+        int index = 0;
+        int tmp = ids_on_body[0];
+        for (int i = 0; i < k; i++) {
+            if (ids_on_body[i] == simm) {
+                index = i;
+                break;
+            }
+        }
+        ids_on_body[0] = simm;
+        ids_on_body[index] = tmp;
+    }
+
+    int *flag = malloc(k * sizeof(int));
+    for (int i = 0; i < k; i++) flag[i] = 0;
+    int current = 0;
+    flag[current] = 1;
+
+    int *ids_sorted = malloc(k * sizeof(int));
+    for (int i = 0; i < k; i++) ids_sorted[i] = 0;
+    Node *nodes_on_body = malloc(k * sizeof(Node));
+    for (int i = 0; i < k; i++) {
+        nodes_on_body[i] = nodes[ids_on_body[i]-1];
+    }
+
+    ids_sorted[0] = ids_on_body[current];
+
+    for (int i = 1; i < k; i++) {
+        int nearest = nearest_node(elements, n_elements, nodes_on_body, ids_on_body, k, current, flag, cell_size);
+        if (nearest == -1) break;
+
+        flag[nearest] = 1;
+        ids_sorted[i] = ids_on_body[nearest];
+        current = nearest;
+    }
+
+    for (int i = 0; i < k - 1; i++) {
+        int n1 = ids_sorted[i];
+        int n2 = ids_sorted[i+1];
+        boundaries[n_boundaries] = (Element){boundary_id, 1, 2, {n1, n2}, 5};
+        n_boundaries++;
+        boundary_id++;
+    }
+
+    if (simm == 0) {
+        int n1 = ids_sorted[k-1];
+        int n2 = ids_sorted[0];
+        boundaries[n_boundaries] = (Element){boundary_id, 1, 2, {n1, n2}, 5};
+        n_boundaries++;
+        boundary_id++;
+    }
+
     end = clock();
     printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
