@@ -130,3 +130,14 @@ bool compute_shock_offset(Point **offset, int *n_offset, Point *shock, int n_sho
     }
     return true;
 }
+
+void extrude_near_shock_cells(
+    Element **elements, int *n_elements,
+    Node **nodes, int *n_nodes,
+    Point *shock, int n_shock,
+    int *offset_nodes, int n_offset_nodes,
+    NearShockLayer nsl, int simmetry,
+    double X0, int cols, double cell_size
+) {
+    
+}

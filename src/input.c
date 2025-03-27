@@ -50,6 +50,8 @@ Input get_input(int argc, char *argv[]) {
         .distribution = 0,
     };
 
+    bool enable_boundaries = false;
+
     if (argc == 32) {
         curve = argv[1];
         outputfile = argv[2];
@@ -96,7 +98,8 @@ Input get_input(int argc, char *argv[]) {
         .nwl = nwl,
         .outputfile = outputfile,
         .shock_curve = shock_curve,
-        .nsl = nsl
+        .nsl = nsl,
+        .enable_boundaries = enable_boundaries
     };
 
     memcpy(input.coarsening_levels, coarsening_levels, sizeof(coarsening_levels));

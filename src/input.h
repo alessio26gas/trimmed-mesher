@@ -8,6 +8,7 @@
 
 typedef struct {
     char *curve;
+    char *external_curve;
     char *shock_curve;
     double cell_size;
     int coarsening_levels[4];
@@ -22,9 +23,12 @@ typedef struct {
     bool smoothing;
     int smoothing_iterations;
     bool enable_nwl;
+    bool enable_external_nwl;
     NearWallLayer nwl;
+    NearWallLayer external_nwl;
     NearShockLayer nsl;
     char *outputfile;
+    bool enable_boundaries;
 } Input;
 
 Input get_input(int argc, char *argv[]);
