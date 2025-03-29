@@ -190,27 +190,34 @@ int main(int argc, char *argv[]) {
             node_id++;
         }
     }
-    node_id = 0;
-    for (int i = 0; i <= rows; i++) {
-        for (int j = 0; j <= cols; j++) {
-            node_id++;
-            if (nodes[node_id - 1].type != 0) continue;
-            Point p = nodes[node_id - 1].position;
-            int type = get_point_type(p, external_offset, n_external_offset);
-            if (type == 0) nodes[node_id - 1].type = 100;
-            if (type == 2) nodes[node_id - 1].type = 200;
+    if (strcmp(input.external_curve, ""))
+    {
+        node_id = 0;
+        for (int i = 0; i <= rows; i++) {
+            for (int j = 0; j <= cols; j++) {
+                node_id++;
+                if (nodes[node_id - 1].type != 0) continue;
+                Point p = nodes[node_id - 1].position;
+                int type = get_point_type(p, external_offset, n_external_offset);
+                if (type == 0) nodes[node_id - 1].type = 100;
+                if (type == 2) nodes[node_id - 1].type = 200;
+            }
         }
     }
-    for (int i = 0; i <= rows; i++) {
-        for (int j = 0; j <= cols; j++) {
-            node_id++;
-            if (nodes[node_id - 1].type != 0) continue;
-            Point p = nodes[node_id - 1].position;
-            int type = get_point_type(p, shock_offset, n_shock_offset);
-            if (type == 0) nodes[node_id - 1].type = 10;
-            if (type == 2) nodes[node_id - 1].type = 20;
+    if (strcmp(input.shock_curve, ""))
+    {
+        for (int i = 0; i <= rows; i++) {
+            for (int j = 0; j <= cols; j++) {
+                node_id++;
+                if (nodes[node_id - 1].type != 0) continue;
+                Point p = nodes[node_id - 1].position;
+                int type = get_point_type(p, shock_offset, n_shock_offset);
+                if (type == 0) nodes[node_id - 1].type = 10;
+                if (type == 2) nodes[node_id - 1].type = 20;
+            }
         }
     }
+
     end = clock();
     printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
@@ -221,9 +228,11 @@ int main(int argc, char *argv[]) {
         if (is_near_body(&(nodes[i].position), offset, n_offset, cell_size)) {
             nodes[i].type = 2;
         }
+        if (strcmp(input.shock_curve, ""))
         if (is_near_body(&(nodes[i].position), shock_offset, n_shock_offset, cell_size)) {
             nodes[i].type = 20;
         }
+        if (strcmp(input.external_curve, ""))
         if (is_near_body(&(nodes[i].position), external_offset, n_external_offset, cell_size)) {
             nodes[i].type = 200;
         }

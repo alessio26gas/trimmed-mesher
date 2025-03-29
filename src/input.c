@@ -98,6 +98,9 @@ Input get_input(int argc, char *argv[]) {
         .nwl = nwl,
         .outputfile = outputfile,
         .shock_curve = shock_curve,
+        .external_curve = "",
+        .external_nwl = nwl,
+        .enable_external_nwl = false,
         .nsl = nsl,
         .enable_boundaries = enable_boundaries
     };
