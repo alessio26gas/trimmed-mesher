@@ -20,7 +20,7 @@ Input get_input(int argc, char *argv[]) {
     int rows = 256;
     int cols = 256;
 
-    Point center = (Point){0.0, 0};
+    Point center = (Point){0.0, 0.0};
 
     double rotation_angle = 0.0;
     Point rotation_center = (Point){0.0, 0.0};
@@ -47,6 +47,19 @@ Input get_input(int argc, char *argv[]) {
         .distance = 0.05,
         .n = 40,
         .SF = 0,
+        .distribution = 0,
+    };
+
+    bool enable_external_nwl = false;
+    char *external_curve = "";
+    NearWallLayer external_nwl = {
+        .first = 5.0e-5,
+        .last = cell_size,
+        .distance = 0,
+        .n = 0,
+        .SF = 1.25,
+        .min_surf_distance = 0.0,
+        .surf_max_iter = 1000,
         .distribution = 0,
     };
 
@@ -84,6 +97,7 @@ Input get_input(int argc, char *argv[]) {
 
     input = (Input){
         .curve = curve,
+        .outputfile = outputfile,
         .cell_size = cell_size,
         .fast_coarsening = fast_coarsening,
         .conformal_coarsening = conformal_coarsening,
@@ -96,11 +110,10 @@ Input get_input(int argc, char *argv[]) {
         .smoothing_iterations = smoothing_iterations,
         .enable_nwl = enable_nwl,
         .nwl = nwl,
-        .outputfile = outputfile,
+        .enable_external_nwl = enable_external_nwl,
+        .external_curve = external_curve,
+        .external_nwl = external_nwl,
         .shock_curve = shock_curve,
-        .external_curve = "",
-        .external_nwl = nwl,
-        .enable_external_nwl = false,
         .nsl = nsl,
         .enable_boundaries = enable_boundaries
     };
