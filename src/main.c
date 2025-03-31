@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
     clock_t global_start = clock();
     clock_t start = global_start;
 
-    Input input = get_input(argc, argv);
+    get_input(argc, argv);
 
     double cell_size = input.cell_size;
     int rows = input.rows;

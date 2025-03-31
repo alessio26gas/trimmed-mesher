@@ -31,6 +31,8 @@ typedef struct {
     bool enable_boundaries;
 } Input;
 
-Input get_input(int argc, char *argv[]);
+void get_input(int argc, char *argv[]);
+
+extern Input input;
 
 #endif

@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-Input get_input(int argc, char *argv[]) {
+Input input = {};
 
-    Input input = {};
+void get_input(int argc, char *argv[]) {
 
     char *curve = "curve.csv";
     char *outputfile = "mesh.msh";
@@ -120,6 +120,4 @@ Input get_input(int argc, char *argv[]) {
 
     memcpy(input.coarsening_levels, coarsening_levels, sizeof(coarsening_levels));
     memcpy(input.coarsening_cells, coarsening_cells, sizeof(coarsening_cells));
-
-    return input;
 }
