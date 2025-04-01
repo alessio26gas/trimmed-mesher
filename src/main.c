@@ -4,6 +4,8 @@
 #include <math.h>
 #include <time.h>
 #include <string.h>
+
+#include "main.h"
 #include "point.h"
 #include "node.h"
 #include "element.h"
@@ -15,6 +17,15 @@
 
 #define PI 3.14159265358979323846
 #define EPSILON 1e-12
+
+int n_nodes;
+Node *nodes;
+
+int n_elements;
+Element *elements;
+
+int n_boundaries;
+Element *boundaries;
 
 int main(int argc, char *argv[]) {
 
@@ -169,8 +180,8 @@ int main(int argc, char *argv[]) {
 
     printf("Allocating memory for nodes...");
     start = end;
-    int n_nodes = (rows + 1) * (cols + 1);
-    Node *nodes = malloc(2 * n_nodes * sizeof(Node)); // 2?
+    n_nodes = (rows + 1) * (cols + 1);
+    nodes = malloc(2 * n_nodes * sizeof(Node)); // 2?
     if (!nodes) {
         perror("An error has occurred");
         printf(" Failed.\n");
@@ -263,7 +274,7 @@ int main(int argc, char *argv[]) {
 
     printf("Allocating memory for elements...");
     start = end;
-    Element *elements = malloc(2 * rows * cols * sizeof(Element)); // 2?
+    elements = malloc(2 * rows * cols * sizeof(Element)); // 2?
     if (!elements) {
         perror("An error has occurred");
         printf(" Failed.\n");
@@ -275,7 +286,8 @@ int main(int argc, char *argv[]) {
     printf("Computing elements...");
     start = end;
     bool pentagons = false;
-    int element_id = 1, n_elements = 0;
+    int element_id = 1;
+    n_elements = 0;
     for (int i = 0; i < rows; i++) {
         for (int j = 0; j < cols; j++) {
             int n1 = i * (cols + 1) + j + 1;
@@ -466,8 +478,7 @@ int main(int argc, char *argv[]) {
     }
 
     bool enable_boundaries = input.enable_boundaries;
-    Element *boundaries;
-    int n_boundaries = 0;
+    n_boundaries = 0;
 
     if (enable_boundaries) {
         printf("Computing boundary elements...");
