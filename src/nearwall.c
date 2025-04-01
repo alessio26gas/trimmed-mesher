@@ -1,8 +1,11 @@
-#include "nearwall.h"
-#include "point.h"
-#include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <math.h>
+
+#include "main.h"
+#include "input.h"
+#include "point.h"
+#include "nearwall.h"
 
 #define PI 3.14159265358979323846
 #define EPSILON 1e-12
@@ -402,7 +405,7 @@ Point nearest_point(Point p, Point *body, int n_points, double nwl_distance) {
     return nearest;
 }
 
-int get_offset_nodes(int **offset_nodes, int *n_offset_nodes, Node *nodes, int n_nodes, Element *elements, int n_elements, double cell_size, double X0, double Y0, int rows, int cols) {
+int get_offset_nodes(int **offset_nodes, int *n_offset_nodes, double cell_size, double X0, double Y0, int rows, int cols) {
 
     for (int i = 0; i < n_nodes; i++) {
         if (nodes[i].type == 2) (*n_offset_nodes)++;

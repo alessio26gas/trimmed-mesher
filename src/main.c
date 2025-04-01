@@ -6,6 +6,7 @@
 #include <string.h>
 
 #include "main.h"
+#include "input.h"
 #include "point.h"
 #include "node.h"
 #include "element.h"
@@ -13,7 +14,6 @@
 #include "nearwall.h"
 #include "shock.h"
 #include "coarsening.h"
-#include "input.h"
 
 #define PI 3.14159265358979323846
 #define EPSILON 1e-12
@@ -429,14 +429,14 @@ int main(int argc, char *argv[]) {
         nodes[r * (cols + 1) + cols].position.x = X0 + cols * cell_size;
     }
 
-    coarsening(&nodes, &n_nodes, &elements, &n_elements, input);
+    coarsening(&nodes, &n_nodes, &elements, &n_elements);
 
     if (enable_nwl) {
         printf("Generating near wall cells...");
         start = end;
         int *offset_nodes;
         int n_offset_nodes = 0;
-        int simmetry = get_offset_nodes(&offset_nodes, &n_offset_nodes, nodes, n_nodes, elements, n_elements, cell_size, X0, Y0, rows, cols);
+        int simmetry = get_offset_nodes(&offset_nodes, &n_offset_nodes, cell_size, X0, Y0, rows, cols);
         extrude_near_wall_cells(
             &elements, &n_elements,
             &nodes, &n_nodes,
@@ -459,7 +459,7 @@ int main(int argc, char *argv[]) {
             if (nodes[i].type == 2) nodes[i].type = 200;
             if (nodes[i].type == 20) nodes[i].type = 2;
         }
-        int simmetry = get_offset_nodes(&offset_nodes, &n_offset_nodes, nodes, n_nodes, elements, n_elements, cell_size, X0, Y0, rows, cols);
+        int simmetry = get_offset_nodes(&offset_nodes, &n_offset_nodes, cell_size, X0, Y0, rows, cols);
         extrude_near_shock_cells(
             &elements, &n_elements,
             &nodes, &n_nodes,
@@ -613,7 +613,7 @@ int main(int argc, char *argv[]) {
     
     printf("Writing output mesh file...");
     start = clock();
-    write_mesh_file(input.outputfile, nodes, n_nodes, elements, n_elements, boundaries, n_boundaries);
+    write_mesh_file();
     end = clock();
     printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 

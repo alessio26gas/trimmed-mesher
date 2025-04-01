@@ -1,13 +1,15 @@
-#include "coarsening.h"
-#include <math.h>
-#include <stdbool.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
+#include <stdbool.h>
+#include <math.h>
 #include <time.h>
+
+#include "input.h"
+#include "coarsening.h"
 
 #define EPSILON 1e-12
 
-void coarsening(Node **nodes, int *n_nodes, Element **elements, int *n_elements, Input input) {
+void coarsening(Node **nodes, int *n_nodes, Element **elements, int *n_elements) {
 
     int max_level = 0;
     for (int i = 0; i < 4; i++) {

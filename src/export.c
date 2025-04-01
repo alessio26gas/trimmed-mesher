@@ -1,9 +1,12 @@
-#include "export.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-void write_mesh_file(const char *filename, Node *nodes, int n_nodes, Element *elements, int n_elements, Element *boundaries, int n_boundaries) {
-    FILE *file = fopen(filename, "w");
+#include "main.h"
+#include "input.h"
+#include "export.h"
+
+void write_mesh_file() {
+    FILE *file = fopen(input.outputfile, "w");
     if (!file) {
         perror("Errore nell'apertura del file di output");
         return;
