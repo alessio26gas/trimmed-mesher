@@ -14,6 +14,6 @@ typedef struct {
 void tria_vertices(int *n1, int *n2, int *n3, int *n4, Point *body, int n_points, Node **nodes, int *n_nodes);
 void quad_vertices(int *n1, int *n2, int *n3, int *n4, Point *body, int n_points, Node **nodes, int *n_nodes);
 int penta_vertices(int *n1, int *n2, int *n3, int *n4, int *n5, Point *body, int n_points, Node **nodes, int *n_nodes);
-void split_pentagons(Element **elements, int *num_elements);
+void split_pentagons();
 
 #endif

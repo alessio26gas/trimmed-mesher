@@ -366,7 +366,7 @@ int main(int argc, char *argv[]) {
     if (pentagons) {
         printf("Splitting pentagons...");
         start = end;
-        split_pentagons(&elements, &n_elements);
+        split_pentagons();
         end = clock();
         printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }

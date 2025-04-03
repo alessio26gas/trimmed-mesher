@@ -1,6 +1,8 @@
-#include "element.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+#include "main.h"
+#include "element.h"
 
 void tria_vertices(int *n1, int *n2, int *n3, int *n4, Point *body, int n_points, Node **nodes, int *n_nodes) {
     if ((*nodes)[*n1 - 1].type == 0) {
@@ -83,18 +85,18 @@ int penta_vertices(int *n1, int *n2, int *n3, int *n4, int *n5, Point *body, int
     }
 }
 
-void split_pentagons(Element **elements, int *num_elements) {
-    int new_count = *num_elements;
+void split_pentagons() {
+    int new_count = n_elements;
 
-    for (int i = 0; i < *num_elements; i++) {
-        if ((*elements)[i].type == 4) new_count += 2;
+    for (int i = 0; i < n_elements; i++) {
+        if (elements[i].type == 4) new_count += 2;
     }
 
     Element *new_elements = (Element *)malloc(2 * new_count * sizeof(Element));
     int new_id = 1, new_index = 0;
 
-    for (int i = 0; i < *num_elements; i++) {
-        Element e = (*elements)[i];
+    for (int i = 0; i < n_elements; i++) {
+        Element e = elements[i];
 
         if (e.type == 4) {
             int ci = (e.flag + 2) % 5;
@@ -112,7 +114,7 @@ void split_pentagons(Element **elements, int *num_elements) {
         }
     }
 
-    free(*elements);
-    *elements = new_elements;
-    *num_elements = new_count;
+    free(elements);
+    elements = new_elements;
+    n_elements = new_count;
 }
