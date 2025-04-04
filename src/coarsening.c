@@ -4,12 +4,13 @@
 #include <math.h>
 #include <time.h>
 
+#include "main.h"
 #include "input.h"
 #include "coarsening.h"
 
 #define EPSILON 1e-12
 
-void coarsening(Node **nodes, int *n_nodes, Element **elements, int *n_elements) {
+void coarsening() {
 
     int max_level = 0;
     for (int i = 0; i < 4; i++) {
@@ -26,8 +27,8 @@ void coarsening(Node **nodes, int *n_nodes, Element **elements, int *n_elements)
 
     printf("Executing non-conformal coarsening...");
     clock_t start = clock();
-    (*nodes) = realloc((*nodes), max_level * 2 * (*n_nodes) * sizeof(Node));
-    (*elements) = realloc((*elements), max_level * 2 * (*n_elements) * sizeof(Element));
+    nodes = realloc(nodes, max_level * 2 * n_nodes * sizeof(Node));
+    elements = realloc(elements, max_level * 2 * n_elements * sizeof(Element));
 
     double xL = input.center.x - input.cell_size * input.cols / 2;
     double xH = input.center.x + input.cell_size * input.cols / 2;
@@ -42,7 +43,7 @@ void coarsening(Node **nodes, int *n_nodes, Element **elements, int *n_elements)
 
             if (input.coarsening_levels[side] < l) continue;
 
-            int K = (*n_nodes);
+            int K = n_nodes;
 
             int n = round(((side % 2) * (yH - yL) + ((side + 1) % 2) * (xH - xL)) / cell_size)
                     + input.coarsening_cells[(side + 1) % 4] * (input.coarsening_levels[(side + 1) % 4] >= l);
@@ -54,20 +55,20 @@ void coarsening(Node **nodes, int *n_nodes, Element **elements, int *n_elements)
                     if (side==1) p = (Point){xH + j * cell_size, yL + i * cell_size};
                     if (side==2) p = (Point){xH - i * cell_size, yH + j * cell_size};
                     if (side==3) p = (Point){xL - j * cell_size, yH - i * cell_size};
-                    (*nodes)[*n_nodes] = (Node){*n_nodes + 1, 0, p};
-                    (*n_nodes)++;
+                    nodes[n_nodes] = (Node){n_nodes + 1, 0, p};
+                    n_nodes++;
                 }
             }
 
             for (int i = 0; i < n; i++) {
                 for (int j = 0; j < input.coarsening_cells[side]; j++) {
-                    (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {
+                    elements[n_elements] = (Element){n_elements + 1, 3, 4, {
                         K + 1 + i     +  j      * (n + 1),
                         K + 1 + i     + (j + 1) * (n + 1),
                         K + 1 + i + 1 + (j + 1) * (n + 1),
                         K + 1 + i + 1 +  j      * (n + 1)
                     }};
-                    (*n_elements)++;
+                    n_elements++;
                 }
             }
         }

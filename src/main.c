@@ -429,7 +429,7 @@ int main(int argc, char *argv[]) {
         nodes[r * (cols + 1) + cols].position.x = X0 + cols * cell_size;
     }
 
-    coarsening(&nodes, &n_nodes, &elements, &n_elements);
+    coarsening();
 
     if (enable_nwl) {
         printf("Generating near wall cells...");

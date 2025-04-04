@@ -6,6 +6,6 @@
 #include "element.h"
 #include "input.h"
 
-void coarsening(Node **nodes, int *n_nodes, Element **elements, int *n_elements);
+void coarsening();
 
 #endif
