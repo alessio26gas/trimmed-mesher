@@ -682,8 +682,8 @@ void extrude_near_wall_cells(
         }
 
         for (int i = 0; i < n_el; i++) {
-            int n1 = (*nodes)[kk + n_offset_nodes + i].id;
-            int n2 = (*nodes)[kk + n_offset_nodes + (i + 1) % n_offset_nodes].id;
+            int n1 = (*nodes)[kk + 2 * n_offset_nodes + i].id;
+            int n2 = (*nodes)[kk + 2 * n_offset_nodes + (i + 1) % n_offset_nodes].id;
             int n3 = offset_nodes[(i + 1) % n_offset_nodes];
             int n4 = offset_nodes[i];
 
