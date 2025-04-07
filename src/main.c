@@ -261,9 +261,11 @@ int main(int argc, char *argv[]) {
             if (is_near_body(&(nodes[i].position), offset, n_offset, cell_size)) {
                 nodes[i].type = 2;
             }
+            if (strcmp(input.shock_curve, ""))
             if (is_near_body(&(nodes[i].position), shock_offset, n_shock_offset, cell_size)) {
                 nodes[i].type = 20;
             }
+            if (strcmp(input.external_curve, ""))
             if (is_near_body(&(nodes[i].position), external_offset, n_external_offset, cell_size)) {
                 nodes[i].type = 200;
             }
