@@ -11,5 +11,5 @@ else()
 endif()
 
 set(CMAKE_BUILD_TYPE Release)
-set(CMAKE_C_FLAGS_RELEASE "-O3 -march=native -flto -funroll-loops -ffast-math")
+set(CMAKE_C_FLAGS_RELEASE "-O3 -march=native -flto -funroll-loops")
 set(CMAKE_INTERPROCEDURAL_OPTIMIZATION ON)
