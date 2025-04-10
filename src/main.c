@@ -13,6 +13,7 @@
 #include "export.h"
 #include "nearwall.h"
 #include "shock.h"
+#include "smoothing.h"
 #include "coarsening.h"
 
 #define PI 3.14159265358979323846
@@ -373,69 +374,13 @@ int main(int argc, char *argv[]) {
         printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }
 
-    if (input.smoothing && input.smoothing_iterations > 0) {
-        printf("Executing smoothing algorithm...\n");
-        start = end;
-        for (int k = 1; k <= input.smoothing_iterations; k++) {
-            double sum = 0.0;
-            for (int c = 1; c < cols; c++) {
-                for (int r = 1; r < rows; r++) {
-                    int i = c + r * (cols + 1);
-                    if (nodes[i].type != 0) continue;
-                    sum += fabs((nodes[i+1].position.x + nodes[i-1].position.x + nodes[i-cols-1].position.x + nodes[i+cols+1].position.x)/4.0 - nodes[i].position.x);
-                    sum += fabs((nodes[i+1].position.y + nodes[i-1].position.y + nodes[i-cols-1].position.y + nodes[i+cols+1].position.y)/4.0 - nodes[i].position.y);
-                    nodes[i].position.x = (nodes[i+1].position.x + nodes[i-1].position.x + nodes[i-cols-1].position.x + nodes[i+cols+1].position.x)/4.0;
-                    nodes[i].position.y = (nodes[i+1].position.y + nodes[i-1].position.y + nodes[i-cols-1].position.y + nodes[i+cols+1].position.y)/4.0;    
-                }
-            }
-            for (int c = 1; c < cols; c++) {
-                if (nodes[c].type == 0 && input.coarsening_levels[0] == 0) {
-                    nodes[c].position.x = (nodes[c+1].position.x + nodes[c-1].position.x)/2.0;
-                }
-                int i = c + rows*(cols + 1);
-                if (nodes[i].type == 0 && input.coarsening_levels[2] == 0) {
-                    nodes[i].position.x = (nodes[i+1].position.x + nodes[i-1].position.x)/2.0;
-                } 
-            }
-            for (int r = 1; r < rows; r++) {
-                int i = r * (cols + 1);
-                if (nodes[i].type == 0 && input.coarsening_levels[1] == 0) {
-                    nodes[i].position.y = (nodes[i-cols-1].position.y + nodes[i+cols+1].position.y)/2.0;
-                }
-                i = r * (cols + 1) + cols;
-                if (nodes[i].type == 0 && input.coarsening_levels[3] == 0) {
-                    nodes[i].position.y = (nodes[i-cols-1].position.y + nodes[i+cols+1].position.y)/2.0;
-                }
-            }
-            if (sum < EPSILON) {
-                printf("Smoothing iteration %d: residuals = %.4e\n", k, sum);
-                end = clock();
-                printf("Smoothing algorithm converged in %d iterations. (%.2f seconds)\n", k, (float) (end - start) / CLOCKS_PER_SEC);
-                break;
-            }
-            if (k % 1000 == 0) printf("Smoothing iteration %d: residuals = %.4e\n", k, sum);
-            if (k == input.smoothing_iterations) {
-                end = clock();
-                printf("Smoothing algorithm stopped at %d iterations. (%.2f seconds)\n", k, (float) (end - start) / CLOCKS_PER_SEC);
-            }
-        }
-    }
-
-    for (int c = 0; c < cols + 1; c++) {
-        nodes[c].position.y = Y0;
-        nodes[c + rows*(cols + 1)].position.y = Y0 + rows * cell_size;
-    }
-
-    for (int r = 0; r < rows + 1; r++) {
-        nodes[r * (cols + 1)].position.x = X0;
-        nodes[r * (cols + 1) + cols].position.x = X0 + cols * cell_size;
-    }
+    smoothing();
 
     coarsening();
 
     if (enable_nwl) {
         printf("Generating near wall cells...");
-        start = end;
+        start = clock();
         int *offset_nodes;
         int n_offset_nodes = 0;
         int simmetry = get_offset_nodes(&offset_nodes, &n_offset_nodes, cell_size, X0, Y0, rows, cols);
