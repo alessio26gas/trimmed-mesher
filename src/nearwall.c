@@ -473,8 +473,6 @@ int get_offset_nodes(int **offset_nodes, int *n_offset_nodes, double cell_size, 
 }
 
 void extrude_near_wall_cells(
-    Element **elements, int *n_elements,
-    Node **nodes, int *n_nodes,
     Point *body, int n_body,
     int *offset_nodes, int n_offset_nodes,
     NearWallLayer nwl, int simmetry,
@@ -482,7 +480,7 @@ void extrude_near_wall_cells(
 ) {
     Point *pA = malloc(n_offset_nodes * sizeof(Point));
     for (int i = 0; i < n_offset_nodes; i++) {
-        pA[i] = (*nodes)[offset_nodes[i]-1].position;
+        pA[i] = nodes[offset_nodes[i]-1].position;
     }
 
     Point *pB = malloc(n_offset_nodes * sizeof(Point));
@@ -568,76 +566,76 @@ void extrude_near_wall_cells(
     bool clockwise = (A < 0);
 
     if (nwl.n == 1) {
-        int kk = *n_nodes;
+        int kk = n_nodes;
 
         for (int i = 0; i < n_offset_nodes; i++) {
-            (*nodes)[*n_nodes].position = pB[i];
-            (*nodes)[*n_nodes].type = 4;
-            (*nodes)[*n_nodes].id = *n_nodes + 1;
-            (*n_nodes)++;
+            nodes[n_nodes].position = pB[i];
+            nodes[n_nodes].type = 4;
+            nodes[n_nodes].id = n_nodes + 1;
+            n_nodes++;
         }
 
         for (int i = 0; i < n_el; i++) {
-            int n1 = (*nodes)[kk + i].id;
-            int n2 = (*nodes)[kk + (i + 1) % n_offset_nodes].id;
+            int n1 = nodes[kk + i].id;
+            int n2 = nodes[kk + (i + 1) % n_offset_nodes].id;
             int n3 = offset_nodes[(i + 1) % n_offset_nodes];
             int n4 = offset_nodes[i];
 
             if (clockwise) {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
             } else {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
             }
-            (*n_elements)++;
+            n_elements++;
         }
         return;
     }
 
     if (nwl.n == 2) {
         double x = nwl.first / nwl.distance;
-        int kk = *n_nodes;
+        int kk = n_nodes;
 
         for (int i = 0; i < n_offset_nodes; i++) {
-            (*nodes)[*n_nodes].position = pB[i];
-            (*nodes)[*n_nodes].type = 4;
-            (*nodes)[*n_nodes].id = *n_nodes + 1;
-            (*n_nodes)++;
+            nodes[n_nodes].position = pB[i];
+            nodes[n_nodes].type = 4;
+            nodes[n_nodes].id = n_nodes + 1;
+            n_nodes++;
         }
 
         for (int i = 0; i < n_offset_nodes; i++) {
-            (*nodes)[*n_nodes].position.x = x*pA[i].x + (1-x)*pB[i].x;
-            (*nodes)[*n_nodes].position.y = x*pA[i].y + (1-x)*pB[i].y;
-            (*nodes)[*n_nodes].type = 3;
-            (*nodes)[*n_nodes].id = *n_nodes + 1;
-            (*n_nodes)++;
+            nodes[n_nodes].position.x = x*pA[i].x + (1-x)*pB[i].x;
+            nodes[n_nodes].position.y = x*pA[i].y + (1-x)*pB[i].y;
+            nodes[n_nodes].type = 3;
+            nodes[n_nodes].id = n_nodes + 1;
+            n_nodes++;
         }
 
         for (int i = 0; i < n_el; i++) {
-            int n1 = (*nodes)[kk + i].id;
-            int n2 = (*nodes)[kk + (i + 1) % n_offset_nodes].id;
-            int n3 = (*nodes)[kk + n_offset_nodes + (i + 1) % n_offset_nodes].id;
-            int n4 = (*nodes)[kk + n_offset_nodes + i].id;
+            int n1 = nodes[kk + i].id;
+            int n2 = nodes[kk + (i + 1) % n_offset_nodes].id;
+            int n3 = nodes[kk + n_offset_nodes + (i + 1) % n_offset_nodes].id;
+            int n4 = nodes[kk + n_offset_nodes + i].id;
 
             if (clockwise) {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
             } else {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
             }
-            (*n_elements)++;
+            n_elements++;
         }
 
         for (int i = 0; i < n_el; i++) {
-            int n1 = (*nodes)[kk + n_offset_nodes + i].id;
-            int n2 = (*nodes)[kk + n_offset_nodes + (i + 1) % n_offset_nodes].id;
+            int n1 = nodes[kk + n_offset_nodes + i].id;
+            int n2 = nodes[kk + n_offset_nodes + (i + 1) % n_offset_nodes].id;
             int n3 = offset_nodes[(i + 1) % n_offset_nodes];
             int n4 = offset_nodes[i];
 
             if (clockwise) {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
             } else {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
             }
-            (*n_elements)++;
+            n_elements++;
         }
         return;
     }
@@ -646,53 +644,53 @@ void extrude_near_wall_cells(
         double x[2];
         x[0] = nwl.first / nwl.distance;
         x[1] = 1 - nwl.last / nwl.distance;
-        int kk = *n_nodes;
+        int kk = n_nodes;
 
         for (int i = 0; i < n_offset_nodes; i++) {
-            (*nodes)[*n_nodes].position = pB[i];
-            (*nodes)[*n_nodes].type = 4;
-            (*nodes)[*n_nodes].id = *n_nodes + 1;
-            (*n_nodes)++;
+            nodes[n_nodes].position = pB[i];
+            nodes[n_nodes].type = 4;
+            nodes[n_nodes].id = n_nodes + 1;
+            n_nodes++;
         }
 
         for (int j = 0; j < 2; j++) {
             for (int i = 0; i < n_offset_nodes; i++) {
-                (*nodes)[*n_nodes].position.x = x[j]*pA[i].x + (1-x[j])*pB[i].x;
-                (*nodes)[*n_nodes].position.y = x[j]*pA[i].y + (1-x[j])*pB[i].y;
-                (*nodes)[*n_nodes].type = 3;
-                (*nodes)[*n_nodes].id = *n_nodes + 1;
-                (*n_nodes)++;
+                nodes[n_nodes].position.x = x[j]*pA[i].x + (1-x[j])*pB[i].x;
+                nodes[n_nodes].position.y = x[j]*pA[i].y + (1-x[j])*pB[i].y;
+                nodes[n_nodes].type = 3;
+                nodes[n_nodes].id = n_nodes + 1;
+                n_nodes++;
             }
         }
 
         for (int j = 0; j < 2; j++) {
             for (int i = 0; i < n_el; i++) {
-                int n1 = (*nodes)[kk + j * n_offset_nodes + i].id;
-                int n2 = (*nodes)[kk + j * n_offset_nodes + (i + 1) % n_offset_nodes].id;
-                int n3 = (*nodes)[kk + (j + 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
-                int n4 = (*nodes)[kk + (j + 1) * n_offset_nodes + i].id;
+                int n1 = nodes[kk + j * n_offset_nodes + i].id;
+                int n2 = nodes[kk + j * n_offset_nodes + (i + 1) % n_offset_nodes].id;
+                int n3 = nodes[kk + (j + 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
+                int n4 = nodes[kk + (j + 1) * n_offset_nodes + i].id;
 
                 if (clockwise) {
-                    (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+                    elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
                 } else {
-                    (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+                    elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
                 }
-                (*n_elements)++;
+                n_elements++;
             }
         }
 
         for (int i = 0; i < n_el; i++) {
-            int n1 = (*nodes)[kk + 2 * n_offset_nodes + i].id;
-            int n2 = (*nodes)[kk + 2 * n_offset_nodes + (i + 1) % n_offset_nodes].id;
+            int n1 = nodes[kk + 2 * n_offset_nodes + i].id;
+            int n2 = nodes[kk + 2 * n_offset_nodes + (i + 1) % n_offset_nodes].id;
             int n3 = offset_nodes[(i + 1) % n_offset_nodes];
             int n4 = offset_nodes[i];
 
             if (clockwise) {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
             } else {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
             }
-            (*n_elements)++;
+            n_elements++;
         }
         return;
     }
@@ -711,52 +709,52 @@ void extrude_near_wall_cells(
         }
     }
 
-    int kk = *n_nodes;
+    int kk = n_nodes;
 
     for (int i = 0; i < n_offset_nodes; i++) {
-        (*nodes)[*n_nodes].position = pB[i];
-        (*nodes)[*n_nodes].type = 4;
-        (*nodes)[*n_nodes].id = *n_nodes + 1;
-        (*n_nodes)++;
+        nodes[n_nodes].position = pB[i];
+        nodes[n_nodes].type = 4;
+        nodes[n_nodes].id = n_nodes + 1;
+        n_nodes++;
     }
 
     for (int j = 0; j < nwl.n - 1; j++) {
         for (int i = 0; i < n_offset_nodes; i++) {
-            (*nodes)[*n_nodes].position.x = x[j]*pA[i].x + (1-x[j])*pB[i].x;
-            (*nodes)[*n_nodes].position.y = x[j]*pA[i].y + (1-x[j])*pB[i].y;
-            (*nodes)[*n_nodes].type = 3;
-            (*nodes)[*n_nodes].id = *n_nodes + 1;
-            (*n_nodes)++;
+            nodes[n_nodes].position.x = x[j]*pA[i].x + (1-x[j])*pB[i].x;
+            nodes[n_nodes].position.y = x[j]*pA[i].y + (1-x[j])*pB[i].y;
+            nodes[n_nodes].type = 3;
+            nodes[n_nodes].id = n_nodes + 1;
+            n_nodes++;
         }
     }
 
     for (int j = 0; j < nwl.n - 1; j++) {
         for (int i = 0; i < n_el; i++) {
-            int n1 = (*nodes)[kk + j * n_offset_nodes + i].id;
-            int n2 = (*nodes)[kk + j * n_offset_nodes + (i + 1) % n_offset_nodes].id;
-            int n3 = (*nodes)[kk + (j + 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
-            int n4 = (*nodes)[kk + (j + 1) * n_offset_nodes + i].id;
+            int n1 = nodes[kk + j * n_offset_nodes + i].id;
+            int n2 = nodes[kk + j * n_offset_nodes + (i + 1) % n_offset_nodes].id;
+            int n3 = nodes[kk + (j + 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
+            int n4 = nodes[kk + (j + 1) * n_offset_nodes + i].id;
 
             if (clockwise) {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
             } else {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
             }
-            (*n_elements)++;
+            n_elements++;
         }
     }
 
     for (int i = 0; i < n_el; i++) {
-        int n1 = (*nodes)[kk + (nwl.n - 1) * n_offset_nodes + i].id;
-        int n2 = (*nodes)[kk + (nwl.n - 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
+        int n1 = nodes[kk + (nwl.n - 1) * n_offset_nodes + i].id;
+        int n2 = nodes[kk + (nwl.n - 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
         int n3 = offset_nodes[(i + 1) % n_offset_nodes];
         int n4 = offset_nodes[i];
 
         if (clockwise) {
-            (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+            elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
         } else {
-            (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+            elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
         }
-        (*n_elements)++;
+        n_elements++;
     }
 }
