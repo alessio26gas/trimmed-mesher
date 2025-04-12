@@ -406,8 +406,6 @@ int main(int argc, char *argv[]) {
         }
         int simmetry = get_offset_nodes(&offset_nodes, &n_offset_nodes, cell_size, X0, Y0, rows, cols);
         extrude_near_shock_cells(
-            &elements, &n_elements,
-            &nodes, &n_nodes,
             shock, n_shock,
             offset_nodes, n_offset_nodes,
             nsl, simmetry,

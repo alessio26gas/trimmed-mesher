@@ -1,8 +1,12 @@
-#include "shock.h"
-#include "nearwall.h"
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <math.h>
+
+#include "main.h"
+#include "input.h"
+#include "point.h"
+#include "nearwall.h"
+#include "shock.h"
 
 #define PI 3.14159265358979323846
 #define EPSILON 1e-12
@@ -132,8 +136,6 @@ bool compute_shock_offset(Point **offset, int *n_offset, Point *shock, int n_sho
 }
 
 void extrude_near_shock_cells(
-    Element **elements, int *n_elements,
-    Node **nodes, int *n_nodes,
     Point *shock, int n_shock,
     int *offset_nodes, int n_offset_nodes,
     NearShockLayer nsl, int simmetry,
@@ -141,7 +143,7 @@ void extrude_near_shock_cells(
 ) {
     Point *pA = malloc(n_offset_nodes * sizeof(Point));
     for (int i = 0; i < n_offset_nodes; i++) {
-        pA[i] = (*nodes)[offset_nodes[i]-1].position;
+        pA[i] = nodes[offset_nodes[i]-1].position;
     }
 
     Point *pB = malloc(n_offset_nodes * sizeof(Point));
@@ -181,76 +183,76 @@ void extrude_near_shock_cells(
     bool clockwise = (A > 0); // REVERSED
 
     if (nsl.n == 1) {
-        int kk = *n_nodes;
+        int kk = n_nodes;
 
         for (int i = 0; i < n_offset_nodes; i++) {
-            (*nodes)[*n_nodes].position = pB[i];
-            (*nodes)[*n_nodes].type = 3;
-            (*nodes)[*n_nodes].id = *n_nodes + 1;
-            (*n_nodes)++;
+            nodes[n_nodes].position = pB[i];
+            nodes[n_nodes].type = 3;
+            nodes[n_nodes].id = n_nodes + 1;
+            n_nodes++;
         }
 
         for (int i = 0; i < n_el; i++) {
-            int n1 = (*nodes)[kk + i].id;
-            int n2 = (*nodes)[kk + (i + 1) % n_offset_nodes].id;
+            int n1 = nodes[kk + i].id;
+            int n2 = nodes[kk + (i + 1) % n_offset_nodes].id;
             int n3 = offset_nodes[(i + 1) % n_offset_nodes];
             int n4 = offset_nodes[i];
 
             if (clockwise) {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
             } else {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
             }
-            (*n_elements)++;
+            n_elements++;
         }
         return;
     }
 
     if (nsl.n == 2) {
         double x = nsl.first / nsl.distance;
-        int kk = *n_nodes;
+        int kk = n_nodes;
 
         for (int i = 0; i < n_offset_nodes; i++) {
-            (*nodes)[*n_nodes].position = pB[i];
-            (*nodes)[*n_nodes].type = 3;
-            (*nodes)[*n_nodes].id = *n_nodes + 1;
-            (*n_nodes)++;
+            nodes[n_nodes].position = pB[i];
+            nodes[n_nodes].type = 3;
+            nodes[n_nodes].id = n_nodes + 1;
+            n_nodes++;
         }
 
         for (int i = 0; i < n_offset_nodes; i++) {
-            (*nodes)[*n_nodes].position.x = x*pA[i].x + (1-x)*pB[i].x;
-            (*nodes)[*n_nodes].position.y = x*pA[i].y + (1-x)*pB[i].y;
-            (*nodes)[*n_nodes].type = 3;
-            (*nodes)[*n_nodes].id = *n_nodes + 1;
-            (*n_nodes)++;
+            nodes[n_nodes].position.x = x*pA[i].x + (1-x)*pB[i].x;
+            nodes[n_nodes].position.y = x*pA[i].y + (1-x)*pB[i].y;
+            nodes[n_nodes].type = 3;
+            nodes[n_nodes].id = n_nodes + 1;
+            n_nodes++;
         }
 
         for (int i = 0; i < n_el; i++) {
-            int n1 = (*nodes)[kk + i].id;
-            int n2 = (*nodes)[kk + (i + 1) % n_offset_nodes].id;
-            int n3 = (*nodes)[kk + n_offset_nodes + (i + 1) % n_offset_nodes].id;
-            int n4 = (*nodes)[kk + n_offset_nodes + i].id;
+            int n1 = nodes[kk + i].id;
+            int n2 = nodes[kk + (i + 1) % n_offset_nodes].id;
+            int n3 = nodes[kk + n_offset_nodes + (i + 1) % n_offset_nodes].id;
+            int n4 = nodes[kk + n_offset_nodes + i].id;
 
             if (clockwise) {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
             } else {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
             }
-            (*n_elements)++;
+            n_elements++;
         }
 
         for (int i = 0; i < n_el; i++) {
-            int n1 = (*nodes)[kk + n_offset_nodes + i].id;
-            int n2 = (*nodes)[kk + n_offset_nodes + (i + 1) % n_offset_nodes].id;
+            int n1 = nodes[kk + n_offset_nodes + i].id;
+            int n2 = nodes[kk + n_offset_nodes + (i + 1) % n_offset_nodes].id;
             int n3 = offset_nodes[(i + 1) % n_offset_nodes];
             int n4 = offset_nodes[i];
 
             if (clockwise) {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
             } else {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
             }
-            (*n_elements)++;
+            n_elements++;
         }
         return;
     }
@@ -259,53 +261,53 @@ void extrude_near_shock_cells(
         double x[2];
         x[0] = nsl.first / nsl.distance;
         x[1] = 1 - nsl.last / nsl.distance;
-        int kk = *n_nodes;
+        int kk = n_nodes;
 
         for (int i = 0; i < n_offset_nodes; i++) {
-            (*nodes)[*n_nodes].position = pB[i];
-            (*nodes)[*n_nodes].type = 3;
-            (*nodes)[*n_nodes].id = *n_nodes + 1;
-            (*n_nodes)++;
+            nodes[n_nodes].position = pB[i];
+            nodes[n_nodes].type = 3;
+            nodes[n_nodes].id = n_nodes + 1;
+            n_nodes++;
         }
 
         for (int j = 0; j < 2; j++) {
             for (int i = 0; i < n_offset_nodes; i++) {
-                (*nodes)[*n_nodes].position.x = x[j]*pA[i].x + (1-x[j])*pB[i].x;
-                (*nodes)[*n_nodes].position.y = x[j]*pA[i].y + (1-x[j])*pB[i].y;
-                (*nodes)[*n_nodes].type = 3;
-                (*nodes)[*n_nodes].id = *n_nodes + 1;
-                (*n_nodes)++;
+                nodes[n_nodes].position.x = x[j]*pA[i].x + (1-x[j])*pB[i].x;
+                nodes[n_nodes].position.y = x[j]*pA[i].y + (1-x[j])*pB[i].y;
+                nodes[n_nodes].type = 3;
+                nodes[n_nodes].id = n_nodes + 1;
+                n_nodes++;
             }
         }
 
         for (int j = 0; j < 2; j++) {
             for (int i = 0; i < n_el; i++) {
-                int n1 = (*nodes)[kk + j * n_offset_nodes + i].id;
-                int n2 = (*nodes)[kk + j * n_offset_nodes + (i + 1) % n_offset_nodes].id;
-                int n3 = (*nodes)[kk + (j + 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
-                int n4 = (*nodes)[kk + (j + 1) * n_offset_nodes + i].id;
+                int n1 = nodes[kk + j * n_offset_nodes + i].id;
+                int n2 = nodes[kk + j * n_offset_nodes + (i + 1) % n_offset_nodes].id;
+                int n3 = nodes[kk + (j + 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
+                int n4 = nodes[kk + (j + 1) * n_offset_nodes + i].id;
 
                 if (clockwise) {
-                    (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+                    elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
                 } else {
-                    (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+                    elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
                 }
-                (*n_elements)++;
+                n_elements++;
             }
         }
 
         for (int i = 0; i < n_el; i++) {
-            int n1 = (*nodes)[kk + 2 * n_offset_nodes + i].id;
-            int n2 = (*nodes)[kk + 2 * n_offset_nodes + (i + 1) % n_offset_nodes].id;
+            int n1 = nodes[kk + 2 * n_offset_nodes + i].id;
+            int n2 = nodes[kk + 2 * n_offset_nodes + (i + 1) % n_offset_nodes].id;
             int n3 = offset_nodes[(i + 1) % n_offset_nodes];
             int n4 = offset_nodes[i];
 
             if (clockwise) {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
             } else {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
             }
-            (*n_elements)++;
+            n_elements++;
         }
         return;
     }
@@ -324,53 +326,53 @@ void extrude_near_shock_cells(
         }
     }
 
-    int kk = *n_nodes;
+    int kk = n_nodes;
 
     for (int i = 0; i < n_offset_nodes; i++) {
-        (*nodes)[*n_nodes].position.x = (2*pB[i].x - pA[i].x);
-        (*nodes)[*n_nodes].position.y = (2*pB[i].y - pA[i].y);
-        (*nodes)[*n_nodes].type = 3;
-        (*nodes)[*n_nodes].id = *n_nodes + 1;
-        (*n_nodes)++;
+        nodes[n_nodes].position.x = (2*pB[i].x - pA[i].x);
+        nodes[n_nodes].position.y = (2*pB[i].y - pA[i].y);
+        nodes[n_nodes].type = 3;
+        nodes[n_nodes].id = n_nodes + 1;
+        n_nodes++;
     }
 
     for (int j = 0; j < nsl.n - 1; j++) {
         for (int i = 0; i < n_offset_nodes; i++) {
-            (*nodes)[*n_nodes].position.x = x[j]*pA[i].x + (1-x[j])*(2*pB[i].x - pA[i].x);
-            (*nodes)[*n_nodes].position.y = x[j]*pA[i].y + (1-x[j])*(2*pB[i].y - pA[i].y);
-            (*nodes)[*n_nodes].type = 3;
-            (*nodes)[*n_nodes].id = *n_nodes + 1;
-            (*n_nodes)++;
+            nodes[n_nodes].position.x = x[j]*pA[i].x + (1-x[j])*(2*pB[i].x - pA[i].x);
+            nodes[n_nodes].position.y = x[j]*pA[i].y + (1-x[j])*(2*pB[i].y - pA[i].y);
+            nodes[n_nodes].type = 3;
+            nodes[n_nodes].id = n_nodes + 1;
+            n_nodes++;
         }
     }
 
     for (int j = 0; j < nsl.n - 1; j++) {
         for (int i = 0; i < n_el; i++) {
-            int n1 = (*nodes)[kk + j * n_offset_nodes + i].id;
-            int n2 = (*nodes)[kk + j * n_offset_nodes + (i + 1) % n_offset_nodes].id;
-            int n3 = (*nodes)[kk + (j + 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
-            int n4 = (*nodes)[kk + (j + 1) * n_offset_nodes + i].id;
+            int n1 = nodes[kk + j * n_offset_nodes + i].id;
+            int n2 = nodes[kk + j * n_offset_nodes + (i + 1) % n_offset_nodes].id;
+            int n3 = nodes[kk + (j + 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
+            int n4 = nodes[kk + (j + 1) * n_offset_nodes + i].id;
 
             if (clockwise) {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
             } else {
-                (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+                elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
             }
-            (*n_elements)++;
+            n_elements++;
         }
     }
 
     for (int i = 0; i < n_el; i++) {
-        int n1 = (*nodes)[kk + (nsl.n - 1) * n_offset_nodes + i].id;
-        int n2 = (*nodes)[kk + (nsl.n - 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
+        int n1 = nodes[kk + (nsl.n - 1) * n_offset_nodes + i].id;
+        int n2 = nodes[kk + (nsl.n - 1) * n_offset_nodes + (i + 1) % n_offset_nodes].id;
         int n3 = offset_nodes[(i + 1) % n_offset_nodes];
         int n4 = offset_nodes[i];
 
         if (clockwise) {
-            (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n1, n2, n3, n4}};
+            elements[n_elements] = (Element){n_elements + 1, 3, 4, {n1, n2, n3, n4}};
         } else {
-            (*elements)[*n_elements] = (Element){*n_elements + 1, 3, 4, {n4, n3, n2, n1}};
+            elements[n_elements] = (Element){n_elements + 1, 3, 4, {n4, n3, n2, n1}};
         }
-        (*n_elements)++;
+        n_elements++;
     }
 }
