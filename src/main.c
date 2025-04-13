@@ -32,6 +32,7 @@ int main(int argc, char *argv[]) {
 
     setbuf(stdout, NULL);
 
+    // Print Trimmed Mesher banner.
     for (int i = 0; i < 70; i++) printf("-");
     printf("\n");
     for (int i = 0; i < 17; i++) printf(" ");
@@ -42,6 +43,7 @@ int main(int argc, char *argv[]) {
     clock_t global_start = clock();
     clock_t start = global_start;
 
+    // Read input parameters.
     get_input(argc, argv);
 
     double cell_size = input.cell_size;
@@ -56,6 +58,7 @@ int main(int argc, char *argv[]) {
     double X0 = - cell_size * cols / 2 + input.center.x;
     double Y0 = - cell_size * rows / 2 + input.center.y;
 
+    // Load body curve.
     Point *body;
     int n_body;
     if (strcmp(input.curve, "")) printf("Loading curve...");
@@ -66,6 +69,7 @@ int main(int argc, char *argv[]) {
     clock_t end = clock();
     if (n_body > 0) printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+    // Rotate body curve.
     double AoA = input.rotation_angle / 180 * PI;
     double xc = input.rotation_center.x;
     double yc = input.rotation_center.y;
@@ -83,6 +87,7 @@ int main(int argc, char *argv[]) {
         printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }
 
+    // Compute near wall parameters and curve offset.
     bool enable_nwl = input.enable_nwl;
     NearWallLayer nwl;
     Point *offset;
@@ -109,6 +114,7 @@ int main(int argc, char *argv[]) {
         n_offset = n_body;
     }
 
+    // Load external curve.
     Point *external;
     int n_external;
     if (strcmp(input.external_curve, "")) printf("Loading external curve...");
@@ -120,6 +126,7 @@ int main(int argc, char *argv[]) {
     end = clock();
     if (n_external > 0) printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+    // Compute external near wall parameters and external offset.
     bool enable_external_nwl = input.enable_external_nwl;
     NearWallLayer external_nwl;
     Point *external_offset;
@@ -146,6 +153,7 @@ int main(int argc, char *argv[]) {
         n_external_offset = n_external;
     }
 
+    // Load shock curve.
     Point *shock;
     int n_shock;
     if (strcmp(input.shock_curve, "")) printf("Loading shockwave curve...");
@@ -157,6 +165,7 @@ int main(int argc, char *argv[]) {
     end = clock();
     if (n_shock > 0) printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+    // Compute near shock parameters and shock offset.
     NearShockLayer nsl;
     Point *shock_offset;
     int n_shock_offset;
@@ -179,6 +188,7 @@ int main(int argc, char *argv[]) {
         printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }
 
+    // Allocate memory for nodes.
     printf("Allocating memory for nodes...");
     start = end;
     n_nodes = (rows + 1) * (cols + 1);
@@ -191,6 +201,7 @@ int main(int argc, char *argv[]) {
     end = clock();
     printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+    // Generate initial cartesian grid.
     printf("Generating initial cartesian grid...");
     start = end;
     int node_id = 1;
@@ -233,6 +244,7 @@ int main(int argc, char *argv[]) {
     end = clock();
     printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+    // Optimize nodes position.
     printf("Optimizing near body nodes position...");
     start = end;
     for (int i = 0; i < n_nodes; i++) {
@@ -275,6 +287,7 @@ int main(int argc, char *argv[]) {
     end = clock();
     printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+    // Allocate memory for elements.
     printf("Allocating memory for elements...");
     start = end;
     elements = malloc(2 * rows * cols * sizeof(Element)); // 2?
@@ -286,6 +299,7 @@ int main(int argc, char *argv[]) {
     end = clock();
     printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+    // Compute elements.
     printf("Computing elements...");
     start = end;
     bool pentagons = false;
@@ -366,6 +380,7 @@ int main(int argc, char *argv[]) {
     end = clock();
     printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+    // If needed, split pentagons into triangles.
     if (pentagons) {
         printf("Splitting pentagons...");
         start = end;
@@ -374,10 +389,13 @@ int main(int argc, char *argv[]) {
         printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }
 
+    // Apply smoothing algorithm.
     smoothing();
 
+    // Apply external grid coarsening.
     coarsening();
 
+    // Generate near wall cells.
     if (enable_nwl) {
         printf("Generating near wall cells...");
         start = clock();
@@ -395,6 +413,7 @@ int main(int argc, char *argv[]) {
         printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }
 
+    // Generate near shock cells.
     if (n_shock > 0) {
         printf("Generating near shock cells...");
         start = end;
@@ -420,6 +439,7 @@ int main(int argc, char *argv[]) {
         printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }
 
+    // Compute boundary elements.
     bool enable_boundaries = input.enable_boundaries;
     n_boundaries = 0;
 
@@ -554,12 +574,14 @@ int main(int argc, char *argv[]) {
         printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }
     
+    // Export mesh file.
     printf("Writing output mesh file...");
     start = clock();
     write_mesh_file();
     end = clock();
     printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
+    // Free all allocated memory before exiting.
     free(nodes);
     free(elements);
     if (enable_boundaries) free(boundaries);
@@ -572,6 +594,7 @@ int main(int argc, char *argv[]) {
     if (n_external > 0) free(external);
     if (enable_external_nwl > 0) free(external_offset);
 
+    // Print success message.
     for (int i = 0; i < 70; i++) printf("-");
     printf("\nMesh completed in %.2f seconds. Nodes: %d. Cells: %d.\n", (float) (clock() - global_start) / CLOCKS_PER_SEC, n_nodes, n_elements);
     for (int i = 0; i < 70; i++) printf("-");
