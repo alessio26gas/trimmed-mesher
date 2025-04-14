@@ -19,6 +19,12 @@
 #define PI 3.14159265358979323846
 #define EPSILON 1e-12
 
+int n_body;
+Point *body;
+
+int n_offset;
+Point *offset;
+
 int n_nodes;
 Node *nodes;
 
@@ -59,8 +65,6 @@ int main(int argc, char *argv[]) {
     double Y0 = - cell_size * rows / 2 + input.center.y;
 
     // Load body curve.
-    Point *body;
-    int n_body;
     if (strcmp(input.curve, "")) printf("Loading curve...");
     if (load_points(input.curve, &body, &n_body) != 0) {
         printf(" Failed.\n");
@@ -90,8 +94,6 @@ int main(int argc, char *argv[]) {
     // Compute near wall parameters and curve offset.
     bool enable_nwl = input.enable_nwl;
     NearWallLayer nwl;
-    Point *offset;
-    int n_offset;
     if (enable_nwl) {
 
         printf("Computing near wall parameters...");
