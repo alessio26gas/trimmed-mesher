@@ -1,10 +1,15 @@
-#include "point.h"
-#include <math.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <math.h>
 
+#include "main.h"
+#include "input.h"
+#include "point.h"
+
+
+#define PI 3.14159265358979323846
 #define EPSILON 1e-12
 
 int load_points(const char *filename, Point **points, int *n_points) {
@@ -42,6 +47,20 @@ int load_points(const char *filename, Point **points, int *n_points) {
     *n_points = count;
     fclose(file);
     return 0;
+}
+
+void rotate_body()
+{
+    double AoA = input.rotation_angle / 180 * PI;
+    double xc = input.rotation_center.x;
+    double yc = input.rotation_center.y;
+    double xt, yt;
+    for (int i = 0; i < n_body; i++) {
+        xt = cos(AoA) * (body[i].x - xc) + sin(AoA) * (body[i].y - yc);
+        yt = -sin(AoA) * (body[i].x - xc) + cos(AoA) * (body[i].y - yc);
+        body[i].x = xt + xc;
+        body[i].y = yt + yc;
+    }
 }
 
 int get_point_type(Point p, Point *body, int n_points) {

@@ -74,19 +74,10 @@ int main(int argc, char *argv[]) {
     if (n_body > 0) printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
 
     // Rotate body curve.
-    double AoA = input.rotation_angle / 180 * PI;
-    double xc = input.rotation_center.x;
-    double yc = input.rotation_center.y;
-    if (AoA != 0.0) {
+    if (input.rotation_angle != 0.0) {
         printf("Rotating curve...");
         start = end;
-        double xt, yt;
-        for (int i = 0; i < n_body; i++) {
-            xt = cos(AoA) * (body[i].x - xc) + sin(AoA) * (body[i].y - yc);
-            yt = -sin(AoA) * (body[i].x - xc) + cos(AoA) * (body[i].y - yc);
-            body[i].x = xt + xc;
-            body[i].y = yt + yc;
-        }
+        rotate_body();
         end = clock();
         printf(" Done. (%.2f seconds)\n", (float) (end - start) / CLOCKS_PER_SEC);
     }
