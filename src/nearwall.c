@@ -473,7 +473,6 @@ int get_offset_nodes(int **offset_nodes, int *n_offset_nodes, double cell_size, 
 }
 
 void extrude_near_wall_cells(
-    Point *body, int n_body,
     int *offset_nodes, int n_offset_nodes,
     NearWallLayer nwl, int simmetry,
     double X0, int cols, double cell_size

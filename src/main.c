@@ -396,7 +396,6 @@ int main(int argc, char *argv[]) {
         int n_offset_nodes = 0;
         int simmetry = get_offset_nodes(&offset_nodes, &n_offset_nodes, cell_size, X0, Y0, rows, cols);
         extrude_near_wall_cells(
-            body, n_body,
             offset_nodes, n_offset_nodes,
             nwl, simmetry,
             X0, cols, cell_size
